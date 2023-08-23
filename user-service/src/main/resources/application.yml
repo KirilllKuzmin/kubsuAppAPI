@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kubsuAppDB
+    username: postgres
+    password: 5555
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+kubsuAppAPI:
+  app:
+    secret: flkajsfd.23wehjrtnvmsp76.ffwerkjvcpf
+    expirationMs: 60000

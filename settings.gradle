@@ -1,0 +1,6 @@
+rootProject.name = 'kubsuAppAPI'
+include 'config-service'
+include 'registry'
+include 'gateway'
+include 'user-service'
+

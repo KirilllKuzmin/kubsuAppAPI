@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: registry
+  cloud:
+    bootstrap:
+      enabled: true
+    config:
+      uri: http://localhost:8888
+      fail-fast: true
+      password: admin
+      username: user
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    peer-node-read-timeout-ms: 100000
