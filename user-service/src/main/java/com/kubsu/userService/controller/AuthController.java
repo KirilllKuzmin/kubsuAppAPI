@@ -99,8 +99,7 @@ public class AuthController {
         user.setFullName(signUpRequest.getFullName());
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(hashedPassword);
-        user.setSpecialtyId(null);
-        user.setGroupSpecialtyId(null);
+        user.setGroup(null);
         user.setStartEducationDate(null);
         user.setEndEducationDate(null);
         user.setCreationDate(OffsetDateTime.now());

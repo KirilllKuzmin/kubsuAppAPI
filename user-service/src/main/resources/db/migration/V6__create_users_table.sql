@@ -5,8 +5,7 @@ create table users (
     full_name text not null,
     email text not null,
     password text,
-    spec_id int,
-    group_spec_id int,
+    group_id int references groups (id),
     start_education_date timestamp,
     end_education_date timestamp,
     create_date timestamp

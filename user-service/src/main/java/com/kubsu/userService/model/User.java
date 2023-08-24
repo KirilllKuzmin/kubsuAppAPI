@@ -33,11 +33,9 @@ public class User {
     @Column
     private String password;
 
-    @Column(name = "spec_id")
-    private Long specialtyId;
-
-    @Column(name = "group_spec_id")
-    private Long groupSpecialtyId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "group_id")
+    private Group group;
 
     @Column(name = "start_education_date")
     private OffsetDateTime startEducationDate;
@@ -56,5 +54,9 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

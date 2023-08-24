@@ -1,6 +1,7 @@
 package com.kubsu.userService.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kubsu.userService.model.Group;
 import com.kubsu.userService.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,9 +28,7 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
 
-    private Long specialtyId;
-
-    private Long groupSpecialtyId;
+    private Group group;
 
     private OffsetDateTime startEducationDate;
 
@@ -44,8 +43,7 @@ public class UserDetailsImpl implements UserDetails {
                            String fullName,
                            String email,
                            String password,
-                           Long specialtyId,
-                           Long groupSpecialtyId,
+                           Group group,
                            OffsetDateTime startEducationDate,
                            OffsetDateTime endEducationDate,
                            OffsetDateTime creationDate,
@@ -56,8 +54,7 @@ public class UserDetailsImpl implements UserDetails {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
-        this.specialtyId = specialtyId;
-        this.groupSpecialtyId = groupSpecialtyId;
+        this.group = group;
         this.startEducationDate = startEducationDate;
         this.endEducationDate = endEducationDate;
         this.creationDate = creationDate;
@@ -75,8 +72,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getSpecialtyId(),
-                user.getGroupSpecialtyId(),
+                user.getGroup(),
                 user.getStartEducationDate(),
                 user.getEndEducationDate(),
                 user.getCreationDate(),
