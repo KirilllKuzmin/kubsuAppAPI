@@ -10,5 +10,5 @@ spring:
 
 kubsuAppAPI:
   app:
-    secret: flkajsfd.23wehjrtnvmsp76.ffwerkjvcpf
-    expirationMs: 60000
+    jwtSecret: flkajsfdwehjrtnvmsp
+    jwtExpirationMs: 18000000
