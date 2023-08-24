@@ -1,12 +1,16 @@
 package com.kubsu.userService.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Data
 @Table(name = "Specialties")
+@NoArgsConstructor
 public class Specialty {
 
     @Id
@@ -24,4 +28,9 @@ public class Specialty {
     @JoinColumn(name = "degree_of_study_id")
     private DegreeOfStudy degreeOfStudy;
 
+    public Specialty(String name, Faculty faculty, DegreeOfStudy degreeOfStudy) {
+        this.name = name;
+        this.faculty = faculty;
+        this.degreeOfStudy = degreeOfStudy;
+    }
 }

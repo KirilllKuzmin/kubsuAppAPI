@@ -1,6 +1,7 @@
 package com.kubsu.userService.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.HashSet;
 import java.util.Set;
