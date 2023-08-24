@@ -7,10 +7,13 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class JwtResponseDTO {
+public class AuthenticationResponseDTO {
+
     private String token;
-    private String type = "Bearer";
-    private Long id;
+
+    private String userId;
+
     private String username;
+
     private List<String> roles;
 }

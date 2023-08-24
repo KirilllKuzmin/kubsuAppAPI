@@ -1,38 +1,34 @@
-package com.kubsu.userService.controller;
+package com.kubsu.userService.service;
 
-import com.kubsu.userService.controller.dto.JwtResponseDTO;
-import com.kubsu.userService.controller.dto.SignInRequestDTO;
-import com.kubsu.userService.controller.dto.SignUpRequestDTO;
+import com.kubsu.userService.exception.DegreeOfStudyNotFoundException;
+import com.kubsu.userService.exception.GroupNotFoundException;
+import com.kubsu.userService.exception.SpecialtyNotFoundException;
+import com.kubsu.userService.exception.UserNotFoundException;
 import com.kubsu.userService.model.*;
 import com.kubsu.userService.repository.*;
-import com.kubsu.userService.service.UserDetailsImpl;
 import com.kubsu.userService.util.JwtUtil;
+import lombok.extern.log4j.Log4j2;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("/api/auth")
-public class AuthController {
+@Log4j2
+@Service
+public class UserService {
+
     private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
@@ -51,7 +47,7 @@ public class AuthController {
 
     private final JwtUtil jwtUtil;
 
-    public AuthController(UserRepository userRepository,
+    public UserService(UserRepository userRepository,
                           DegreeOfStudyRepository degreeOfStudyRepository,
                           PasswordEncoder passwordEncoder,
                           RoleRepository roleRepository,
@@ -71,61 +67,84 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> signin(@RequestBody SignInRequestDTO signInRequestDTO) {
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Unable to find user with id: " + id));
+    }
+
+    public List<String> authorization(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signInRequestDTO.getUsername(), signInRequestDTO.getPassword()));
+                new UsernamePasswordAuthenticationToken(username, password));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtUtil.generateJwtToken(authentication);
+        String jwtToken = jwtUtil.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+        List<String> tokenAndIdAndRoles = new ArrayList<>();
 
-        JwtResponseDTO res = new JwtResponseDTO();
-        res.setToken(jwt);
-        res.setId(userDetails.getId());
-        res.setUsername(userDetails.getUsername());
-        res.setRoles(roles);
-        return ResponseEntity.ok(res);
+        tokenAndIdAndRoles.add(jwtToken);
+
+        tokenAndIdAndRoles.add(String.valueOf(userDetails.getId()));
+
+        tokenAndIdAndRoles.addAll(userDetails
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList()
+        );
+
+        return tokenAndIdAndRoles;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignUpRequestDTO signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("username is already taken");
-        }
-        String hashedPassword = passwordEncoder.encode(signUpRequest.getPassword());
+    public void registration(String username, String password) {
+        String hashedPassword = passwordEncoder.encode(password);
 
         Set<Role> roles = new HashSet<>();
-        Optional<Role> userRole = roleRepository.findByName(ERole.ROLE_STUDENT);
+        Role userRole = roleRepository.findByName(ERole.ROLE_STUDENT).orElseThrow(() ->
+                        new UserNotFoundException("Unable to find user role: " + ERole.ROLE_STUDENT));
 
-        if (userRole.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("role not found");
-        }
+        roles.add(userRole);
 
-        roles.add(userRole.get());
+        Map<EParseKubsuData, String> parseDataKubsu = authAndParseKubsuStudent(username, password);
 
-        Map<EParseKubsuData, String> parseDataKubsu = loginKubSUStudent(signUpRequest.getUsername(), signUpRequest.getPassword());
+        //Пока заглушка, что всенаправления являются бакалавриатом
+        DegreeOfStudy degreeOfStudy = degreeOfStudyRepository.findById(1L).orElseThrow(() ->
+                new DegreeOfStudyNotFoundException("unable to find degree of study id: 1L"));
 
-        Optional<DegreeOfStudy> degreeOfStudy = degreeOfStudyRepository.findById(1L);
+        if (!facultyRepository.existsByName(parseDataKubsu.get(EParseKubsuData.FACULTY_NAME)))
+            facultyRepository.save(new Faculty(parseDataKubsu.get(EParseKubsuData.FACULTY_NAME)));
 
-        Faculty faculty = new Faculty(parseDataKubsu.get(EParseKubsuData.FACULTY_NAME));
-        facultyRepository.save(faculty);
+        Faculty faculty = facultyRepository.findByName(parseDataKubsu.get(EParseKubsuData.FACULTY_NAME)).orElseThrow();
 
-        Specialty specialty = new Specialty(parseDataKubsu.get(EParseKubsuData.SPECIALTY_NAME), faculty, degreeOfStudy.get());
-        specialtyRepository.save(specialty);
+        if (!specialtyRepository.existsByNameAndFacultyAndDegreeOfStudy(
+                parseDataKubsu.get(EParseKubsuData.SPECIALTY_NAME), faculty, degreeOfStudy))
+            specialtyRepository.save(
+                    new Specialty(parseDataKubsu.get(EParseKubsuData.SPECIALTY_NAME), faculty, degreeOfStudy));
 
-        Group group = new Group(parseDataKubsu.get(EParseKubsuData.GROUP_NAME), specialty);
-        groupRepository.save(group);
+        Specialty specialty = specialtyRepository
+                .findByNameAndFacultyAndDegreeOfStudy(
+                        parseDataKubsu.get(EParseKubsuData.SPECIALTY_NAME), faculty, degreeOfStudy)
+                .orElseThrow(() ->
+                        new SpecialtyNotFoundException("Unable to find specialty " + EParseKubsuData.SPECIALTY_NAME));
+
+        if (!groupRepository.existsByNameAndSpecialty(parseDataKubsu.get(EParseKubsuData.GROUP_NAME), specialty))
+            groupRepository.save(new Group(parseDataKubsu.get(EParseKubsuData.GROUP_NAME), specialty));
+
+        Group group = groupRepository
+                .findByNameAndSpecialty(
+                        parseDataKubsu.get(EParseKubsuData.GROUP_NAME), specialty)
+                .orElseThrow(() ->
+                        new GroupNotFoundException("unable to find group " + parseDataKubsu.get(EParseKubsuData.GROUP_NAME)));
 
         User user = new User();
         user.setKubsuUserId(Long.valueOf(parseDataKubsu.get(EParseKubsuData.KUBSU_USER_ID)));
-        user.setUsername(signUpRequest.getUsername());
+        user.setUsername(username);
         user.setFullName(parseDataKubsu.get(EParseKubsuData.FULL_NAME));
         user.setEmail(parseDataKubsu.get(EParseKubsuData.EMAIL));
         user.setPassword(hashedPassword);
@@ -136,11 +155,9 @@ public class AuthController {
         user.setRoles(roles);
 
         userRepository.save(user);
-
-        return ResponseEntity.ok("User registered success");
     }
 
-    private Map<EParseKubsuData, String> loginKubSUStudent(String user, String password) {
+    private Map<EParseKubsuData, String> authAndParseKubsuStudent(String user, String password) {
         Map<EParseKubsuData, String> studentData = new HashMap<>();
         try {
             Connection.Response response = Jsoup.connect("https://kubsu.ru/user/")
@@ -149,14 +166,19 @@ public class AuthController {
                             "form_id", "user_login")
                     .method(Connection.Method.POST)
                     .timeout(10000).execute();
+            log.debug(response.statusMessage());
 
-            Document documentPortfolio = Jsoup.connect("https://www.kubsu.ru/public-portfolio").cookies(response.cookies()).get();
+            Document documentPortfolio = Jsoup.connect("https://www.kubsu.ru/public-portfolio")
+                    .cookies(response.cookies()).get();
+            log.debug("Parse portfolio: " + documentPortfolio.head());
 
+            log.debug("Parse fullname...");
             String [] fio = documentPortfolio.select("head > title").text().split(Pattern.quote("|"));
             if (fio[0].trim().equals("Гость"))
-                throw new IllegalArgumentException("Неверный логин или пароль");
+                throw new IllegalArgumentException("invalid username or password");
             studentData.put(EParseKubsuData.FULL_NAME, fio[0].trim());
 
+            log.debug("Parse group...");
             Element groupElement = documentPortfolio.selectFirst("head meta[about*=\"/ru/taxonomy/term/\"]");
             String group = Objects.requireNonNull(groupElement).attr("content");
             studentData.put(EParseKubsuData.GROUP_NAME, group);
@@ -168,25 +190,31 @@ public class AuthController {
 
             String [] splitFacultyAndDirection = facultyAndDirection.split(Pattern.quote(" - "));
 
+            log.debug("Parse faculty and specialty...");
             studentData.put(EParseKubsuData.FACULTY_NAME, splitFacultyAndDirection[0].trim());
             studentData.put(EParseKubsuData.SPECIALTY_NAME, splitFacultyAndDirection[1].trim());
 
+            log.debug("Parse /user site...");
             Document documentUser = Jsoup.connect("https://www.kubsu.ru/user").cookies(response.cookies()).get();
 
+            log.debug("Parse kubsu user id...");
             Element kubsuIdElement = documentUser.selectFirst("head meta[about*=\"/ru/user/\"]");
             String kubsuId = Objects.requireNonNull(kubsuIdElement).attr("resource");
             kubsuId = kubsuId.substring(kubsuId.lastIndexOf("/") + 1);
             studentData.put(EParseKubsuData.KUBSU_USER_ID, kubsuId);
 
-            Document documentUserEdit = Jsoup.connect("https://www.kubsu.ru/user/" + kubsuId + "/edit").cookies(response.cookies()).get();
+            log.debug("Parse /user/" + kubsuId + "/edit...");
+            Document documentUserEdit = Jsoup.connect("https://www.kubsu.ru/user/" + kubsuId + "/edit")
+                    .cookies(response.cookies()).get();
             Element emailElement = documentUserEdit.selectFirst("input#edit-mail");
             studentData.put(EParseKubsuData.EMAIL, emailElement.attr("value"));
 
         } catch (IOException e) {
-
+            log.error("Unexpected error during site parsing", e);
             e.printStackTrace();
         }
 
         return studentData;
     }
+
 }

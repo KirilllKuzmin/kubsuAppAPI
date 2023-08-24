@@ -2,7 +2,9 @@ package com.kubsu.userService.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kubsu.userService.model.Group;
+import com.kubsu.userService.model.Role;
 import com.kubsu.userService.model.User;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Data
 public class UserDetailsImpl implements UserDetails {
 
     private Long id;
@@ -35,6 +38,7 @@ public class UserDetailsImpl implements UserDetails {
     private OffsetDateTime endEducationDate;
 
     private OffsetDateTime creationDate;
+
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(Long id,

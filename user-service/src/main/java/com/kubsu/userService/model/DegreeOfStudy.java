@@ -2,12 +2,12 @@ package com.kubsu.userService.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.util.HashSet;
-import java.util.Set;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
 @Table(name = "degree_of_studies")
+@NoArgsConstructor
 public class DegreeOfStudy {
 
     @Id
