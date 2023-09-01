@@ -50,14 +50,14 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     public UserService(UserRepository userRepository,
-                          DegreeOfStudyRepository degreeOfStudyRepository,
-                          PasswordEncoder passwordEncoder,
-                          RoleRepository roleRepository,
-                          FacultyRepository facultyRepository,
-                          SpecialtyRepository specialtyRepository,
-                          GroupRepository groupRepository,
-                          AuthenticationManager authenticationManager,
-                          JwtUtil jwtUtil) {
+                       DegreeOfStudyRepository degreeOfStudyRepository,
+                       PasswordEncoder passwordEncoder,
+                       RoleRepository roleRepository,
+                       FacultyRepository facultyRepository,
+                       SpecialtyRepository specialtyRepository,
+                       GroupRepository groupRepository,
+                       AuthenticationManager authenticationManager,
+                       JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.degreeOfStudyRepository = degreeOfStudyRepository;
         this.roleRepository = roleRepository;
@@ -74,10 +74,9 @@ public class UserService {
         return CompletableFuture.completedFuture(userRepository.findAll());
     }
 
-    @Async
-    public CompletableFuture<User> getUserById(Long id) {
-        return CompletableFuture.completedFuture(userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Unable to find user with id: " + id)));
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Unable to find user with id: " + id));
     }
 
     @Async
@@ -112,7 +111,7 @@ public class UserService {
 
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName(ERole.ROLE_STUDENT).orElseThrow(() ->
-                        new UserNotFoundException("Unable to find user role: " + ERole.ROLE_STUDENT));
+                new UserNotFoundException("Unable to find user role: " + ERole.ROLE_STUDENT));
 
         roles.add(userRole);
 

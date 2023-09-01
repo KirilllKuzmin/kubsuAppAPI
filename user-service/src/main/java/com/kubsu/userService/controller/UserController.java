@@ -35,13 +35,11 @@ public class UserController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('STUDENT') or hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public CompletableFuture<UserResponseDTO> profile() {
+    public UserResponseDTO profile() {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-        CompletableFuture<User> userFuture = userService.getUserById(userDetails.getId());
-        return userFuture.thenApplyAsync(UserResponseDTO::new);
+        return new UserResponseDTO(userService.getUserById(userDetails.getId()));
     }
 
     @GetMapping("all")
