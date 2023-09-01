@@ -12,6 +12,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 @Log4j2
@@ -67,16 +69,19 @@ public class UserService {
         this.jwtUtil = jwtUtil;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    @Async
+    public CompletableFuture<List<User>> getAllUsers() {
+        return CompletableFuture.completedFuture(userRepository.findAll());
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Unable to find user with id: " + id));
+    @Async
+    public CompletableFuture<User> getUserById(Long id) {
+        return CompletableFuture.completedFuture(userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Unable to find user with id: " + id)));
     }
 
-    public List<String> authorization(String username, String password) {
+    @Async
+    public CompletableFuture<List<String>> authorization(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
 
@@ -99,7 +104,7 @@ public class UserService {
                 .toList()
         );
 
-        return tokenAndIdAndRoles;
+        return CompletableFuture.completedFuture(tokenAndIdAndRoles);
     }
 
     public void registration(String username, String password) {
@@ -207,7 +212,7 @@ public class UserService {
             Document documentUserEdit = Jsoup.connect("https://www.kubsu.ru/user/" + kubsuId + "/edit")
                     .cookies(response.cookies()).get();
             Element emailElement = documentUserEdit.selectFirst("input#edit-mail");
-            studentData.put(EParseKubsuData.EMAIL, emailElement.attr("value"));
+            studentData.put(EParseKubsuData.EMAIL, Objects.requireNonNull(emailElement).attr("value"));
 
         } catch (IOException e) {
             log.error("Unexpected error during site parsing", e);

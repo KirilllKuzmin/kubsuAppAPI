@@ -1,17 +1,14 @@
 package com.kubsu.userService.controller.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kubsu.userService.model.Group;
 import com.kubsu.userService.model.Role;
 import com.kubsu.userService.model.User;
-import com.kubsu.userService.service.UserDetailsImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Data
 @AllArgsConstructor

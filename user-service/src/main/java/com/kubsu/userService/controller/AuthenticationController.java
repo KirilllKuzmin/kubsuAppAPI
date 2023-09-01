@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/users")
@@ -26,24 +27,23 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authentication")
-    public AuthenticationResponseDTO authenticationUser(@RequestBody AuthenticationRequestDTO authenticationRequestDTO) {
+    public CompletableFuture<AuthenticationResponseDTO> authenticationUser(@RequestBody AuthenticationRequestDTO authenticationRequestDTO) {
         User user = new User();
 
         if (!userRepository.existsByUsername(authenticationRequestDTO.getUsername())) {
             userService.registration(authenticationRequestDTO.getUsername(), authenticationRequestDTO.getPassword());
         }
 
-        List<String> tokenAndIdAndRoles = userService.authorization(authenticationRequestDTO.getUsername(),
-                                                                    authenticationRequestDTO.getPassword());
+        CompletableFuture<List<String>> tokenAndIdAndRolesAsync = userService.authorization(
+                authenticationRequestDTO.getUsername(),
+                authenticationRequestDTO.getPassword());
 
-        AuthenticationResponseDTO authenticationResponseDTO = new AuthenticationResponseDTO();
-
-        authenticationResponseDTO.setToken(tokenAndIdAndRoles.get(0));
-        authenticationResponseDTO.setUserId(tokenAndIdAndRoles.get(1));
-        authenticationResponseDTO.setUsername(authenticationRequestDTO.getUsername());
-        authenticationResponseDTO.setRoles(new ArrayList<>(tokenAndIdAndRoles.subList(2, tokenAndIdAndRoles.size())));
-
-        return authenticationResponseDTO;
+        return tokenAndIdAndRolesAsync.thenApplyAsync(strings -> new AuthenticationResponseDTO(
+                strings.get(0),
+                strings.get(1),
+                authenticationRequestDTO.getUsername(),
+                new ArrayList<>(strings.subList(2, strings.size()))
+        ));
     }
 
 }
