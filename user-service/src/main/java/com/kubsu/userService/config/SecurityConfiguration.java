@@ -23,6 +23,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(
+        prePostEnabled = true,
+        securedEnabled = true)
 public class SecurityConfiguration {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt authEntryPointJwt;
@@ -66,8 +69,8 @@ public class SecurityConfiguration {
                 )
                 //доступы реквестов
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/..").permitAll()
-                        .requestMatchers("/api/test/..").permitAll()
+                        .requestMatchers("/users/authentication").permitAll()
+                        .requestMatchers("/users").fullyAuthenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
