@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+    <changeSet id="create-users-table" author="Kirill.Kuzmin">
+        <createTable tableName="users">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="kubsu_user_id" type="int"/>
+            <column name="username" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="full_name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="text"/>
+            <column name="group_id" type="int">
+                <constraints foreignKeyName="fk_user_groups" references="groups(id)"/>
+            </column>
+            <column name="start_education_date" type="timestamp"/>
+            <column name="end_education_date" type="timestamp"/>
+            <column name="create_date" type="timestamp"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
