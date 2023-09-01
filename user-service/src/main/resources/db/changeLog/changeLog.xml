@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <include file="db/table/roles.xml"/>
+    <include file="db/table/degree_of_studies.xml"/>
+    <include file="db/table/faculties.xml"/>
+    <include file="db/table/specialties.xml"/>
+    <include file="db/table/groups.xml"/>
+    <include file="db/table/users.xml"/>
+    <include file="db/table/user_roles.xml"/>
+    <include file="db/data/roles.xml"/>
+    <include file="db/data/degree_of_studies.xml"/>
+
+</databaseChangeLog>

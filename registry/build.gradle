@@ -22,7 +22,7 @@ ext {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'com.kuzmin.registry.RegistryApplication'
+                'Main-Class': 'com.kubsu.registry.RegistryApplication'
         )
     }
 }

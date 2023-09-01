@@ -2,3 +2,9 @@
 /.gradle/
 /user-service/build/
 /user-service/build/classes/java/main/
+/registry/build/
+/registry/build/classes/java/main/
+/gateway/build/
+/gateway/build/classes/java/main/
+/config-service/build/
+/config-service/build/classes/java/main/
