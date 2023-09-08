@@ -12,6 +12,7 @@ spring:
   liquibase:
     change-log: classpath:db/changeLog/changeLog.xml
     enabled: true
+    default-schema: public
 
 kubsuAppAPI:
   app:
