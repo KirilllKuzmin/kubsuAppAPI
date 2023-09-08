@@ -106,6 +106,41 @@ public class UserService {
         return CompletableFuture.completedFuture(tokenAndIdAndRoles);
     }
 
+    public void registrationLecturer(String username, String fullName, String email, String password) {
+        String hashedPassword = passwordEncoder.encode(password);
+
+        Set<Role> roles = new HashSet<>();
+        Role userRole = roleRepository.findByName(ERole.ROLE_LECTURER).orElseThrow(() ->
+                new UserNotFoundException("Unable to find user role: " + ERole.ROLE_LECTURER));
+
+        roles.add(userRole);
+
+        if (!groupRepository.existsById(1L))
+            groupRepository.save(new Group("Деканат", specialtyRepository.findById(1L).orElseThrow(() ->
+                            new SpecialtyNotFoundException("Unable to find specialty by id 1"))));
+
+        Group group = groupRepository
+                .findByNameAndSpecialty(
+                        "Деканат", specialtyRepository.findById(1L).orElseThrow(() ->
+                                new SpecialtyNotFoundException("Unable to find specialty by id 1")))
+                .orElseThrow(() ->
+                        new GroupNotFoundException("unable to find group dean's office"));
+
+        User user = new User();
+        user.setKubsuUserId(null);
+        user.setUsername(username);
+        user.setFullName(fullName);
+        user.setEmail(email);
+        user.setPassword(hashedPassword);
+        user.setGroup(group);
+        user.setStartEducationDate(null);
+        user.setEndEducationDate(null);
+        user.setCreationDate(OffsetDateTime.now());
+        user.setRoles(roles);
+
+        userRepository.save(user);
+    }
+
     public void registration(String username, String password) {
         String hashedPassword = passwordEncoder.encode(password);
 

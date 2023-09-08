@@ -15,5 +15,8 @@
     <include file="db/table/user_roles.xml"/>
     <include file="db/data/roles.xml"/>
     <include file="db/data/degree_of_studies.xml"/>
+    <include file="db/data/faculties.xml"/>
+    <include file="db/data/specialties.xml"/>
+    <include file="db/data/groups.xml"/>
 
 </databaseChangeLog>

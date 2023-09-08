@@ -69,8 +69,6 @@ public class SecurityConfiguration {
                 )
                 //доступы реквестов
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/users/authentication").permitAll()
-                        .requestMatchers("/users").fullyAuthenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
