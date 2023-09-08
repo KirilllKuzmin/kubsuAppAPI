@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Data
-@Table(name = "Specialties")
+@Table(name = "specialties")
 @NoArgsConstructor
 public class Specialty {
 

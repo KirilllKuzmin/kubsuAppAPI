@@ -5,18 +5,10 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
 
     <include file="db/function/create_schema_if_not_exists.xml"/>
-    <include file="db/schema/user_schema.xml"/>
+    <include file="db/schema/accounting_schema.xml"/>
     <include file="db/table/roles.xml"/>
-    <include file="db/table/degree_of_studies.xml"/>
-    <include file="db/table/faculties.xml"/>
-    <include file="db/table/specialties.xml"/>
-    <include file="db/table/groups.xml"/>
     <include file="db/table/users.xml"/>
     <include file="db/table/user_roles.xml"/>
     <include file="db/data/roles.xml"/>
-    <include file="db/data/degree_of_studies.xml"/>
-    <include file="db/data/faculties.xml"/>
-    <include file="db/data/specialties.xml"/>
-    <include file="db/data/groups.xml"/>
 
 </databaseChangeLog>

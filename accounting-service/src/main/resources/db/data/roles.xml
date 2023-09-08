@@ -3,17 +3,17 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
-    <changeSet id="1_insert-roles-table" author="Kirill.Kuzmin">
-        <insert tableName="roles" schemaName="user_schema">
+    <changeSet id="accounting_1_insert-roles-table" author="Kirill.Kuzmin">
+        <insert tableName="roles" schemaName="accounting_schema">
             <column name="name" value="ROLE_STUDENT"/>
         </insert>
-        <insert tableName="roles" schemaName="user_schema">
+        <insert tableName="roles" schemaName="accounting_schema">
             <column name="name" value="ROLE_LECTURER"/>
         </insert>
-        <insert tableName="roles" schemaName="user_schema">
+        <insert tableName="roles" schemaName="accounting_schema">
             <column name="name" value="ROLE_MODERATOR"/>
         </insert>
-        <insert tableName="roles" schemaName="user_schema">
+        <insert tableName="roles" schemaName="accounting_schema">
             <column name="name" value="ROLE_ADMIN"/>
         </insert>
     </changeSet>
