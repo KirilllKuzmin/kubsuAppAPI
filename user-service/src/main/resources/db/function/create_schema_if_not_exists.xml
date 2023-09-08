@@ -4,10 +4,10 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
 
-    <changeSet id="create_user_schema_if_not_exists" author="Kirill.Kuzmin">
+    <changeSet id="create_schema_if_not_exists" author="Kirill.Kuzmin">
         <sql splitStatements="false">
             <![CDATA[
-            CREATE OR REPLACE FUNCTION create_user_schema_if_not_exists(schem_name text)
+            CREATE OR REPLACE FUNCTION create_schema_if_not_exists(schem_name text)
             RETURNS void AS $$
             BEGIN
                 IF NOT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = schem_name) THEN

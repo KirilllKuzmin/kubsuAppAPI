@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
 
-    <include file="db/function/create_user_schema_if_not_exists.xml"/>
+    <include file="db/function/create_schema_if_not_exists.xml"/>
     <include file="db/schema/user_schema.xml"/>
     <include file="db/table/roles.xml"/>
     <include file="db/table/degree_of_studies.xml"/>
