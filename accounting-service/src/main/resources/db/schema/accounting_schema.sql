@@ -1,0 +1,1 @@
+SELECT create_schema_if_not_exists('accounting_schema');
