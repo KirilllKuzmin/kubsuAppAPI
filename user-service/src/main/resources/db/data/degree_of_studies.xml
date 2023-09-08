@@ -4,16 +4,16 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
     <changeSet id="1_insert-degree_of_studies-table" author="Kirill.Kuzmin">
-        <insert tableName="degree_of_studies">
+        <insert tableName="degree_of_studies" schemaName="user_schema">
             <column name="name" value="Бакалавриат"/>
         </insert>
-        <insert tableName="degree_of_studies">
+        <insert tableName="degree_of_studies" schemaName="user_schema">
             <column name="name" value="Магистратура"/>
         </insert>
-        <insert tableName="degree_of_studies">
+        <insert tableName="degree_of_studies" schemaName="user_schema">
             <column name="name" value="Аспирантура"/>
         </insert>
-        <insert tableName="degree_of_studies">
+        <insert tableName="degree_of_studies" schemaName="user_schema">
             <column name="name" value="Специалитет"/>
         </insert>
     </changeSet>

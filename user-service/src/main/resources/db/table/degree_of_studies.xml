@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
     <changeSet id="create-degree_of_studies-table" author="Kirill.Kuzmin">
-        <createTable tableName="degree_of_studies">
+        <createTable tableName="degree_of_studies" schemaName="user_schema">
             <column name="id" type="serial">
                 <constraints primaryKey="true" nullable="false"/>
             </column>

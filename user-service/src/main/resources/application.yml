@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/kubsuAppDB
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: postgres
+    password: 5555
     driver-class-name: org.postgresql.Driver
   jpa:
     database: postgresql
@@ -12,8 +12,9 @@ spring:
   liquibase:
     change-log: classpath:db/changeLog/changeLog.xml
     enabled: true
+    default-schema: public
 
 kubsuAppAPI:
   app:
-    jwtSecret: ${JWT_SECRET}
+    jwtSecret: ljafidjadujrtijfgkldsajpf
     jwtExpirationMs: 18000000
