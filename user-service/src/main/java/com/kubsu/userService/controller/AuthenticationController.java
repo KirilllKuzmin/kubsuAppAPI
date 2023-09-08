@@ -2,7 +2,6 @@ package com.kubsu.userService.controller;
 
 import com.kubsu.userService.controller.dto.AuthenticationRequestDTO;
 import com.kubsu.userService.controller.dto.AuthenticationResponseDTO;
-import com.kubsu.userService.model.User;
 import com.kubsu.userService.repository.*;
 import com.kubsu.userService.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +27,15 @@ public class AuthenticationController {
 
     @PostMapping("/authentication")
     public CompletableFuture<AuthenticationResponseDTO> authenticationUser(@RequestBody AuthenticationRequestDTO authenticationRequestDTO) {
-        User user = new User();
+
+        /*
+         * Временный метод до тех пор, пока не будет интеграции с БД/AD КубГУ либо парсинг данных с офф. сайта
+         */
+        if (authenticationRequestDTO.getIsLecturer() != null && authenticationRequestDTO.getIsLecturer())
+            userService.registrationLecturer(authenticationRequestDTO.getUsername(),
+                    authenticationRequestDTO.getFullName(),
+                    authenticationRequestDTO.getEmail(),
+                    authenticationRequestDTO.getPassword());
 
         if (!userRepository.existsByUsername(authenticationRequestDTO.getUsername())) {
             userService.registration(authenticationRequestDTO.getUsername(), authenticationRequestDTO.getPassword());
