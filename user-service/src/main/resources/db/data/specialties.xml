@@ -7,7 +7,7 @@
         <insert tableName="specialties" schemaName="user_schema">
             <column name="name" value="Деканат"/>
             <column name="faculty_id" value="1" />
-            <column name="degree_of_study_id" value="1"/>
+            <column name="degree_of_study_id" value="5"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

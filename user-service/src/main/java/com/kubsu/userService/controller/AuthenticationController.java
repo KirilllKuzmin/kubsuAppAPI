@@ -28,10 +28,6 @@ public class AuthenticationController {
     @PostMapping("/authentication")
     public CompletableFuture<AuthenticationResponseDTO> authenticationUser(@RequestBody AuthenticationRequestDTO authenticationRequestDTO) {
 
-        if (!userRepository.existsByUsername(authenticationRequestDTO.getUsername())) {
-            userService.registration(authenticationRequestDTO.getUsername(), authenticationRequestDTO.getPassword());
-        }
-
         /*
          * Временный метод до тех пор, пока не будет интеграции с БД/AD КубГУ либо парсинг данных с офф. сайта
          */
@@ -40,6 +36,10 @@ public class AuthenticationController {
                     authenticationRequestDTO.getFullName(),
                     authenticationRequestDTO.getEmail(),
                     authenticationRequestDTO.getPassword());
+
+        if (!userRepository.existsByUsername(authenticationRequestDTO.getUsername())) {
+            userService.registration(authenticationRequestDTO.getUsername(), authenticationRequestDTO.getPassword());
+        }
 
         CompletableFuture<List<String>> tokenAndIdAndRolesAsync = userService.authorization(
                 authenticationRequestDTO.getUsername(),

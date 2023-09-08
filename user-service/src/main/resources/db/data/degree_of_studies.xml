@@ -16,5 +16,8 @@
         <insert tableName="degree_of_studies" schemaName="user_schema">
             <column name="name" value="Специалитет"/>
         </insert>
+        <insert tableName="degree_of_studies" schemaName="user_schema">
+            <column name="name" value="Преподаватель"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>
