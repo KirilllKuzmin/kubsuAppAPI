@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
     <changeSet id="create-groups-table" author="Kirill.Kuzmin">
-        <createTable tableName="groups">
+        <createTable tableName="groups" schemaName="user_schema">
             <column name="id" type="serial">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -12,7 +12,7 @@
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="specialty_id" type="int">
-                <constraints nullable="true" foreignKeyName="fk_group_specialty" references="specialties(id)"/>
+                <constraints nullable="true" foreignKeyName="fk_group_specialty" references="user_schema.specialties(id)"/>
             </column>
         </createTable>
     </changeSet>

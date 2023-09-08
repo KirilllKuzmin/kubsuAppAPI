@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet id="create_user_schema_if_not_exists" author="Kirill.Kuzmin">
+        <sql splitStatements="false">
+            <![CDATA[
+            CREATE OR REPLACE FUNCTION create_user_schema_if_not_exists(schem_name text)
+            RETURNS void AS $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = schem_name) THEN
+                    EXECUTE 'CREATE SCHEMA ' || schem_name;
+                END IF;
+            END;
+            $$ LANGUAGE plpgsql;
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

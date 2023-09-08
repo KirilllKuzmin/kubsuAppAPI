@@ -1,0 +1,1 @@
+SELECT create_user_schema_if_not_exists('user_schema');
