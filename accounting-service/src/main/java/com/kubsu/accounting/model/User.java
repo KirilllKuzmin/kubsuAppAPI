@@ -33,8 +33,4 @@ public class User {
             joinColumns = @JoinColumn(name="user_id"),
             inverseJoinColumns = @JoinColumn(name="role_id"))
     private Set<Role> roles = new HashSet<>();
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
 }

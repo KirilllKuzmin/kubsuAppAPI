@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+    <changeSet id="accounting_create-timetable-groups-table" author="Kirill.Kuzmin">
+        <createTable tableName="timetable_groups" schemaName="accounting_schema">
+            <column name="timetable_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_timetable_groups_timetable"
+                             references="accounting_schema.timetables(id)"/>
+            </column>
+            <column name="group_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
