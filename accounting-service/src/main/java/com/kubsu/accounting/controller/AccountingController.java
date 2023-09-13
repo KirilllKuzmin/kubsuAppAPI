@@ -19,7 +19,7 @@ public class AccountingController {
         return "Public Content.";
     }
 
-    @GetMapping("")
+    @GetMapping("/profile")
     @PreAuthorize("hasRole('STUDENT') or hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public UserDetailsImpl profile() {
         SecurityContext context = SecurityContextHolder.getContext();

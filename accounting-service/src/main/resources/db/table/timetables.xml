@@ -32,7 +32,7 @@
                              references="accounting_schema.number_time_classes_held(id)"/>
             </column>
             <column name="week_type_id" type="int">
-                <constraints nullable="false"
+                <constraints nullable="true"
                              foreignKeyName="fk_timetables_week_types"
                              references="accounting_schema.week_types(id)"/>
             </column>

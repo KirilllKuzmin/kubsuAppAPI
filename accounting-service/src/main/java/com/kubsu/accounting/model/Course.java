@@ -1,20 +1,21 @@
 package com.kubsu.accounting.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
-@Table(name = "roles")
-public class Role {
+@Table(name = "courses")
+public class Course {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Getter
-    @Enumerated(EnumType.STRING)
     @Column
-    private ERole name;
+    private String name;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "course_type_id")
+    private CourseType courseType;
 }

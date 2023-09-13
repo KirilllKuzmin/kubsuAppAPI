@@ -5,6 +5,9 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
     <changeSet id="accounting_create-timetable-groups-table" author="Kirill.Kuzmin">
         <createTable tableName="timetable_groups" schemaName="accounting_schema">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
             <column name="timetable_id" type="int">
                 <constraints nullable="false"
                              foreignKeyName="fk_timetable_groups_timetable"
