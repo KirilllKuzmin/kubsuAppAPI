@@ -1,5 +1,7 @@
 package com.kubsu.userService.controller;
 
+import com.kubsu.userService.controller.dto.GroupResponseDTO;
+import com.kubsu.userService.controller.dto.StudentResponseDTO;
 import com.kubsu.userService.controller.dto.UserResponseDTO;
 import com.kubsu.userService.model.User;
 import com.kubsu.userService.service.UserDetailsImpl;
@@ -11,6 +13,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -50,5 +53,21 @@ public class UserController {
         return usersFuture.thenApplyAsync(users -> users.stream()
                 .map(UserResponseDTO::new)
                 .collect(Collectors.toList()));
+    }
+
+    @GetMapping("groups")
+    public List<GroupResponseDTO> allGroups(@RequestParam List<Long> groupId) {
+        return userService.getAllGroups(groupId)
+                .stream()
+                .map(GroupResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("students")
+    public List<StudentResponseDTO> allStudents(@RequestParam List<Long> Id) {
+        return userService.getAllStudents(Id)
+                .stream()
+                .map(StudentResponseDTO::new)
+                .collect(Collectors.toList());
     }
 }

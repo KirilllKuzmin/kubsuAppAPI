@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
-@Table(name = "week_types")
+@Table(name = "week_types", schema = "accounting_schema")
 public class WeekType {
 
     @Id

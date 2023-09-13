@@ -81,6 +81,14 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Unable to find user with id: " + id));
     }
 
+    public List<Group> getAllGroups(List<Long> groupIds) {
+        return groupRepository.findAllById(groupIds);
+    }
+
+    public List<User> getAllStudents(List<Long> userIds) {
+        return userRepository.findAllById(userIds);
+    }
+
     @Async
     public CompletableFuture<List<String>> authorization(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(

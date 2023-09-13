@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "timetable_changes")
+@Table(name = "timetable_changes", schema = "accounting_schema")
 @Data
 @NoArgsConstructor
 public class TimetableChange {

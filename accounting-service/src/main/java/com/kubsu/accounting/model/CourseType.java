@@ -1,10 +1,14 @@
 package com.kubsu.accounting.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "course_types")
+@Table(name = "course_types", schema = "accounting_schema")
+@Data
+@NoArgsConstructor
 public class CourseType {
 
     @Id

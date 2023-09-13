@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
-@Table(name = "absence_types")
+@Table(name = "absence_types", schema = "accounting_schema")
 public class AbsenceType {
 
     @Id

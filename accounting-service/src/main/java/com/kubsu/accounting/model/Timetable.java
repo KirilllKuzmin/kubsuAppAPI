@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "timetables")
+@Table(name = "timetables", schema = "accounting_schema")
 @Data
 @NoArgsConstructor
 public class Timetable {

@@ -21,6 +21,10 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    set('springCloudVersion', "2022.0.4")
+}
+
 jar {
     manifest {
         attributes(
@@ -33,6 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     // https://mvnrepository.com/artifact/org.liquibase/liquibase-core
     implementation 'org.liquibase:liquibase-core:4.23.1'
     compileOnly 'org.projectlombok:lombok'
@@ -46,6 +51,12 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.16.1'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 tasks.named('test') {

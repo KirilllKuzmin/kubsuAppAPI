@@ -9,7 +9,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="int">
-                <constraints nullable="false" foreignKeyName="fk_user_student" references="accounting_schema.users(id)"/>
+                <constraints nullable="false"/>
             </column>
             <column name="group_id" type="int">
                 <constraints nullable="false"/>

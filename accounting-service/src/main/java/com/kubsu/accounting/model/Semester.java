@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "semesters")
+@Table(name = "semesters", schema = "accounting_schema")
 public class Semester {
 
     @Id

@@ -9,9 +9,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="int">
-                <constraints nullable="false"
-                             foreignKeyName="fk_user_lecturer"
-                             references="accounting_schema.users(id)"/>
+                <constraints nullable="false"/>
             </column>
             <column name="academic_degree_id" type="int">
                 <constraints nullable="false"
