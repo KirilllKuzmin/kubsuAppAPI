@@ -8,6 +8,7 @@ import lombok.Getter;
 public class WeekType {
 
     @Id
+    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

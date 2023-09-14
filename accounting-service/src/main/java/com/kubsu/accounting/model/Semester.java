@@ -1,12 +1,14 @@
 package com.kubsu.accounting.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "semesters", schema = "accounting_schema")
+@Data
 public class Semester {
 
     @Id

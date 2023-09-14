@@ -18,6 +18,9 @@
                              foreignKeyName="fk_absences_students"
                              references="accounting_schema.students(id)"/>
             </column>
+            <column name="absence_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
             <column name="event_date" type="timestamp">
                 <constraints nullable="false"/>
             </column>

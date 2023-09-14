@@ -2,6 +2,7 @@ package com.kubsu.accounting.repository;
 
 import com.kubsu.accounting.model.Course;
 import com.kubsu.accounting.model.Lecturer;
+import com.kubsu.accounting.model.Semester;
 import com.kubsu.accounting.model.Timetable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,6 @@ public interface TimetableRepository extends JpaRepository<Timetable, Long> {
     Optional<List<Course>> findDistinctCoursesByLecturer(Lecturer lecturer);
 
     Optional<Set<Timetable>> findAllByCourse(Course course);
+
+    Optional<List<Timetable>> findAllByCourseAndSemester(Course course, Semester semester);
 }
