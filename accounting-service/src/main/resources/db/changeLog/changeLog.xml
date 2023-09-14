@@ -9,6 +9,26 @@
     <include file="db/table/roles.xml"/>
     <include file="db/table/users.xml"/>
     <include file="db/table/user_roles.xml"/>
+    <include file="db/table/absence_types.xml"/>
+    <include file="db/table/course_types.xml"/>
+    <include file="db/table/academic_buildings.xml"/>
+    <include file="db/table/academic_degrees.xml"/>
+    <include file="db/table/week_types.xml"/>
+    <include file="db/table/semesters.xml"/>
+    <include file="db/table/courses.xml"/>
+    <include file="db/table/classrooms.xml"/>
+    <include file="db/table/number_time_classes_held.xml"/>
+    <include file="db/table/lecturers.xml"/>
+    <include file="db/table/students.xml"/>
+    <include file="db/table/timetables.xml"/>
+    <include file="db/table/timetable_groups.xml"/>
+    <include file="db/table/absences.xml"/>
+    <include file="db/table/timetable_changes.xml"/>
+    <include file="db/data/absence_types.xml"/>
+    <include file="db/data/academic_buildings.xml"/>
+    <include file="db/data/course_types.xml"/>
+    <include file="db/data/number_time_classes_held.xml"/>
     <include file="db/data/roles.xml"/>
+    <include file="db/data/week_types.xml"/>
 
 </databaseChangeLog>

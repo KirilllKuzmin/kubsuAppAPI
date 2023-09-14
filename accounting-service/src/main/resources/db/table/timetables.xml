@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+    <changeSet id="accounting_create-timetables-table" author="Kirill.Kuzmin">
+        <createTable tableName="timetables" schemaName="accounting_schema">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="classroom_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_timetables_classrooms"
+                             references="accounting_schema.classrooms(id)"/>
+            </column>
+            <column name="lecturer_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_timetables_lecturers"
+                             references="accounting_schema.lecturers(id)"/>
+            </column>
+            <column name="course_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_timetables_courses"
+                             references="accounting_schema.courses(id)"/>
+            </column>
+            <column name="day_of_week" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="num_time_class_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_timetables_num_time_class"
+                             references="accounting_schema.number_time_classes_held(id)"/>
+            </column>
+            <column name="week_type_id" type="int">
+                <constraints nullable="true"
+                             foreignKeyName="fk_timetables_week_types"
+                             references="accounting_schema.week_types(id)"/>
+            </column>
+            <column name="semester_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_timetables_semesters"
+                             references="accounting_schema.semesters(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

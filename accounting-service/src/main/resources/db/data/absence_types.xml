@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+    <changeSet id="accounting_1_insert-absence-types-table" author="Kirill.Kuzmin">
+        <insert tableName="absence_types" schemaName="accounting_schema">
+            <column name="name" value="Опоздание"/>
+        </insert>
+        <insert tableName="absence_types" schemaName="accounting_schema">
+            <column name="name" value="Болезнь"/>
+        </insert>
+        <insert tableName="absence_types" schemaName="accounting_schema">
+            <column name="name" value="Не уважительная причина"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

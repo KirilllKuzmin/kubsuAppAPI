@@ -18,3 +18,12 @@ kubsuAppAPI:
   app:
     jwtSecret: ljafidjadujrtijfgkldsajpf
     jwtExpirationMs: 18000000
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+
+server:
+  port: 8081

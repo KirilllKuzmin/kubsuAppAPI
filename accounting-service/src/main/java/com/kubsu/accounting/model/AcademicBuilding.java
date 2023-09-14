@@ -1,20 +1,17 @@
 package com.kubsu.accounting.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
-@Table(name = "roles", schema = "accounting_schema")
-public class Role {
+@Table(name = "academic_buildings", schema = "accounting_schema")
+public class AcademicBuilding {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Getter
-    @Enumerated(EnumType.STRING)
     @Column
-    private ERole name;
-
+    private String name;
 }

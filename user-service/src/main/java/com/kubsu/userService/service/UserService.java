@@ -12,6 +12,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -79,6 +81,14 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Unable to find user with id: " + id));
     }
 
+    public List<Group> getAllGroups(List<Long> groupIds) {
+        return groupRepository.findAllById(groupIds);
+    }
+
+    public List<User> getAllStudents(List<Long> userIds) {
+        return userRepository.findAllById(userIds);
+    }
+
     @Async
     public CompletableFuture<List<String>> authorization(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
@@ -107,6 +117,10 @@ public class UserService {
     }
 
     public void registrationLecturer(String username, String fullName, String email, String password) {
+
+        if (userRepository.existsByUsername(username))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with username " + username + " is already exists");
+
         String hashedPassword = passwordEncoder.encode(password);
 
         Set<Role> roles = new HashSet<>();

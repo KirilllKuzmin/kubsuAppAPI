@@ -4,6 +4,7 @@ import com.kubsu.userService.controller.dto.AuthenticationRequestDTO;
 import com.kubsu.userService.controller.dto.AuthenticationResponseDTO;
 import com.kubsu.userService.repository.*;
 import com.kubsu.userService.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,9 +38,8 @@ public class AuthenticationController {
                     authenticationRequestDTO.getEmail(),
                     authenticationRequestDTO.getPassword());
 
-        if (!userRepository.existsByUsername(authenticationRequestDTO.getUsername())) {
+        if (!userRepository.existsByUsername(authenticationRequestDTO.getUsername()))
             userService.registration(authenticationRequestDTO.getUsername(), authenticationRequestDTO.getPassword());
-        }
 
         CompletableFuture<List<String>> tokenAndIdAndRolesAsync = userService.authorization(
                 authenticationRequestDTO.getUsername(),

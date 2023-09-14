@@ -1,7 +1,6 @@
 package com.kubsu.accounting.config;
 
 import com.kubsu.accounting.filter.AuthTokenFilter;
-import com.kubsu.accounting.service.AuthEntryPointJwt;
 import com.kubsu.accounting.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,12 +27,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         securedEnabled = true)
 public class SecurityConfiguration {
     private final UserDetailsServiceImpl userDetailsService;
-    private final AuthEntryPointJwt authEntryPointJwt;
     private final AuthTokenFilter authTokenFilter;
 
-    public SecurityConfiguration(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt authEntryPointJwt, AuthTokenFilter authTokenFilter) {
+    public SecurityConfiguration(UserDetailsServiceImpl userDetailsService, AuthTokenFilter authTokenFilter) {
         this.userDetailsService = userDetailsService;
-        this.authEntryPointJwt = authEntryPointJwt;
         this.authTokenFilter = authTokenFilter;
     }
 

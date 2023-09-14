@@ -3,13 +3,16 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
-    <changeSet id="accounting_create-user-roles-table" author="Kirill.Kuzmin">
-        <createTable tableName="user_roles" schemaName="accounting_schema">
-            <column name="user_id" type="int">
-                <constraints nullable="false" foreignKeyName="fk_user_roles_acc" references="accounting_schema.users(id)"/>
+    <changeSet id="accounting_create-students-table" author="Kirill.Kuzmin">
+        <createTable tableName="students" schemaName="accounting_schema">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="role_id" type="int">
-                <constraints nullable="false" foreignKeyName="fk_role_users_acc" references="accounting_schema.roles(id)"/>
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="group_id" type="int">
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
