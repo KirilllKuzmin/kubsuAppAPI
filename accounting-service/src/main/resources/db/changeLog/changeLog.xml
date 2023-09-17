@@ -11,6 +11,8 @@
     <include file="db/table/user_roles.xml"/>
     <include file="db/table/absence_types.xml"/>
     <include file="db/table/course_types.xml"/>
+    <include file="db/table/evaluation_types.xml"/>
+    <include file="db/table/types_of_work.xml"/>
     <include file="db/table/academic_buildings.xml"/>
     <include file="db/table/academic_degrees.xml"/>
     <include file="db/table/week_types.xml"/>
@@ -24,11 +26,15 @@
     <include file="db/table/timetable_groups.xml"/>
     <include file="db/table/absences.xml"/>
     <include file="db/table/timetable_changes.xml"/>
+    <include file="db/table/evaluations.xml"/>
+    <include file="db/table/work_dates.xml"/>
     <include file="db/data/absence_types.xml"/>
     <include file="db/data/academic_buildings.xml"/>
     <include file="db/data/course_types.xml"/>
     <include file="db/data/number_time_classes_held.xml"/>
     <include file="db/data/roles.xml"/>
     <include file="db/data/week_types.xml"/>
+    <include file="db/data/evaluation_types.xml"/>
+    <include file="db/data/types_of_work.xml"/>
 
 </databaseChangeLog>
