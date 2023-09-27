@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @GetMapping("all")
-    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('ADMIN')")
     public CompletableFuture<List<UserResponseDTO>> allProfiles() {
         CompletableFuture<List<User>> usersFuture = userService.getAllUsers();
 
