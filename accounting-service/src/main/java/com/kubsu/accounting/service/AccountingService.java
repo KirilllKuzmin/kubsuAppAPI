@@ -60,11 +60,13 @@ public class AccountingService {
                 new TimetableNotFoundException("Unable to find courses from the lecturer with user_id" + userId));
     }
 
-    public Set<Long> courseGroups(Long courseId) {
+    public Set<Long> courseGroups(Long courseId, Long userId) {
         Set<Timetable> timetables = timetableRepository
-                .findAllByCourse(courseRepository
+                .findAllByCourseAndLecturer(courseRepository
                         .findById(courseId).orElseThrow(() ->
-                                new CourseNotFoundException("Unable to find course_id" + courseId)))
+                                new CourseNotFoundException("Unable to find course_id" + courseId)),
+                        lecturerRepository.findLecturerByUserId(userId).orElseThrow(() ->
+                                new LecturerNotFoundException("Unable to find lecturer with user_id" + userId)))
                 .orElseThrow(() ->
                         new TimetableNotFoundException("Unable to find timetables with course_id" + courseId));
 
@@ -76,18 +78,23 @@ public class AccountingService {
                 new StudentNotFoundException("Unable to find students with group id " + groupId));
     }
 
-    public List<OffsetDateTime> getDatesOfCourse(Long courseId) {
+    public List<OffsetDateTime> getDatesOfCourse(Long courseId, Long groupId, Long lecturerId) {
         OffsetDateTime currentDate = OffsetDateTime.now();
 
         List<OffsetDateTime> courseDates = new ArrayList<>();
 
+        Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
+                new LecturerNotFoundException("Unable to find lecturer with user_id" + lecturerId));
+
         Semester currentSemester = semesterRepository.findSemesterByStartDateBeforeAndEndDateAfter(currentDate, currentDate)
                 .orElseThrow(() -> new SemesterNotFoundException("Unable to find semester in date current date"));
 
-        List<Timetable> timetables = timetableRepository.findAllByCourseAndSemester(
+        List<Long> timetableIds = timetableRepository.findAllByCourseAndSemesterAndLecturerAndGroup(
                 courseRepository.findById(courseId).orElseThrow(() ->
-                        new CourseNotFoundException("Unable to find course with id " + courseId)), currentSemester)
+                        new CourseNotFoundException("Unable to find course with id " + courseId)), currentSemester, lecturer, groupId)
                 .orElseThrow(() -> new TimetableNotFoundException("Unable to find timetable with course_id" + courseId));
+
+        List<Timetable> timetables = timetableRepository.findAllById(timetableIds);
 
         for (Timetable timetable : timetables) {
             //Переопределяем дату на начало, для подсчета всех дат, когда должна проводится пара
@@ -110,13 +117,24 @@ public class AccountingService {
         return courseDates;
     }
 
-    public String setAbsenceStudents(Long userId, Long timetableId, OffsetDateTime absenceDate, Long absenceTypeId) {
+    public String setAbsenceStudents(Long studentId, Long lecturerId, Long courseId, OffsetDateTime absenceDate, Long absenceTypeId) {
 
-        Student student = studentRepository.findByUserId(userId).orElseThrow(() ->
-                new StudentNotFoundException("Unable to find student with user_id = " + userId));
+        Student student = studentRepository.findByUserId(studentId).orElseThrow(() ->
+                new StudentNotFoundException("Unable to find student with user_id = " + studentId));
+
+        Course course = courseRepository.findById(courseId).orElseThrow(() ->
+                                new CourseNotFoundException("Unable to find course_id" + courseId));
+
+        Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
+                new LecturerNotFoundException("Unable to find lecturer with user_id = " + lecturerId));
 
         AbsenceType absenceType = absenceTypeRepository.findById(absenceTypeId).orElseThrow(() ->
                 new AbsenceTypeNotFoundException("Unable to find absenceType with id = " + absenceTypeId));
+
+        Long dayOfWeek = (long) absenceDate.getDayOfWeek().getValue();
+
+        Long timetableId = timetableRepository.findByCourseAndLecturerAndDayOfWeek(course, lecturer, dayOfWeek).orElseThrow(() ->
+                new TimetableNotFoundException("Unable to find timetable"));
 
         Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() ->
                 new TimetableNotFoundException("Unable to find timetable with id = " + timetableId));

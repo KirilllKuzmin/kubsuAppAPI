@@ -64,10 +64,14 @@ public class AccountingController {
         return accountingService.lecturerCourses(userDetails.getId());
     }
 
-    @GetMapping("/courses/{courseId}/groups")
+    @GetMapping("/lecturers/courses/{courseId}/groups")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
     public List<GroupResponseDTO> courseGroups(@PathVariable Long courseId) {
-        return userServiceClient.getGroups(new ArrayList<>(accountingService.courseGroups(courseId)));
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return userServiceClient.getGroups(new ArrayList<>(accountingService.courseGroups(courseId, userDetails.getId())));
     }
 
     @GetMapping("/groups/{groupId}/students")
@@ -80,18 +84,26 @@ public class AccountingController {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/courses/{courseId}/dates")
+    @GetMapping("/lecturers/courses/{courseId}/groups/{groupId}/dates")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('STUDENT') or hasRole('ADMIN')")
-    public List<OffsetDateTime> courseDates(@PathVariable Long courseId) {
-        return accountingService.getDatesOfCourse(courseId);
+    public List<OffsetDateTime> courseDates(@PathVariable Long courseId, @PathVariable Long groupId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return accountingService.getDatesOfCourse(courseId, groupId, userDetails.getId());
     }
 
     @PostMapping("/lecturers/setAbsences")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
-    public ResponseEntity<?> setAbsenceStudent(@RequestBody Long userId,
-                                               Long timetableId,
+    public ResponseEntity<?> setAbsenceStudent(@RequestBody Long studentId,
+                                               Long courseId,
                                                OffsetDateTime absenceDate,
                                                Long absenceTypeId) {
-        return ResponseEntity.ok(accountingService.setAbsenceStudents(userId, timetableId, absenceDate, absenceTypeId));
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return ResponseEntity.ok(accountingService.setAbsenceStudents(studentId, userDetails.getId(), courseId, absenceDate, absenceTypeId));
     }
 }

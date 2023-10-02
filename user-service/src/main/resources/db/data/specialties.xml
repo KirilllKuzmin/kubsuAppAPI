@@ -9,5 +9,40 @@
             <column name="faculty_id" value="1" />
             <column name="degree_of_study_id" value="5"/>
         </insert>
+        <insert tableName="specialties" schemaName="user_schema">
+            <column name="name" value="02.03.03 Математическое обеспечение и администрирование информационных систем"/>
+            <column name="faculty_id" value="1" />
+            <column name="degree_of_study_id" value="1"/>
+        </insert>
+        <insert tableName="specialties" schemaName="user_schema">
+            <column name="name" value="09.03.03 Прикладная информатика"/>
+            <column name="faculty_id" value="1" />
+            <column name="degree_of_study_id" value="1"/>
+        </insert>
+        <insert tableName="specialties" schemaName="user_schema">
+            <column name="name" value="01.03.02 Прикладная математика и информатика"/>
+            <column name="faculty_id" value="1" />
+            <column name="degree_of_study_id" value="1"/>
+        </insert>
+        <insert tableName="specialties" schemaName="user_schema">
+            <column name="name" value="02.03.02 Фундаментальная информатика и информационные технологии"/>
+            <column name="faculty_id" value="1" />
+            <column name="degree_of_study_id" value="1"/>
+        </insert>
+        <insert tableName="specialties" schemaName="user_schema">
+            <column name="name" value="09.04.02 Искусственный интеллект и машинное обучение"/>
+            <column name="faculty_id" value="1" />
+            <column name="degree_of_study_id" value="2"/>
+        </insert>
+        <insert tableName="specialties" schemaName="user_schema">
+            <column name="name" value="01.04.02 Прикладная математика и информатика"/>
+            <column name="faculty_id" value="1" />
+            <column name="degree_of_study_id" value="2"/>
+        </insert>
+        <insert tableName="specialties" schemaName="user_schema">
+            <column name="name" value="02.04.02 Фундаментальная информатика и информационные технологии"/>
+            <column name="faculty_id" value="1" />
+            <column name="degree_of_study_id" value="2"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>
