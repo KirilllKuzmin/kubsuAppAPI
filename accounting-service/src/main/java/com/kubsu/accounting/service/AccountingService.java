@@ -143,4 +143,33 @@ public class AccountingService {
 
         return "Success";
     }
+
+    public List<Absence> getAbsenceStudents(Long groupId, Long lecturerId, Long courseId) {
+        OffsetDateTime currentDate = OffsetDateTime.now();
+
+        Semester currentSemester = semesterRepository.findSemesterByStartDateBeforeAndEndDateAfter(currentDate, currentDate)
+                .orElseThrow(() -> new SemesterNotFoundException("Unable to find semester in date current date"));
+
+        Course course = courseRepository.findById(courseId).orElseThrow(() ->
+                new CourseNotFoundException("Unable to find course_id" + courseId));
+
+        Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
+                new LecturerNotFoundException("Unable to find lecturer with user_id = " + lecturerId));
+
+        List<Long> timetableIds = timetableRepository.findAllByCourseAndSemesterAndLecturerAndGroup(
+                        courseRepository.findById(courseId).orElseThrow(() ->
+                                new CourseNotFoundException("Unable to find course with id " + courseId)),
+                        currentSemester, lecturer, groupId)
+                .orElseThrow(() -> new TimetableNotFoundException("Unable to find timetable with course_id" + courseId));
+
+        List<Timetable> timetables = timetableRepository.findAllById(timetableIds);
+
+        List<Student> students = studentRepository.findAllByGroupId(groupId).orElseThrow(() ->
+                new StudentNotFoundException("Unable to find student"));
+
+        List<Long> absenceIds = absenceRepository.findAllByStudentAndTimetable(students, timetables).orElseThrow(() ->
+                new AbsenceNotFoundException("Unable to find absenceIds"));
+
+        return absenceRepository.findAllById(absenceIds);
+    }
 }

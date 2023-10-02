@@ -1,7 +1,10 @@
 package com.kubsu.accounting.controller;
 
+import com.kubsu.accounting.dto.GetAbsenceResponseDTO;
 import com.kubsu.accounting.dto.GroupResponseDTO;
+import com.kubsu.accounting.dto.SetAbsenceRequestDTO;
 import com.kubsu.accounting.dto.StudentResponseDTO;
+import com.kubsu.accounting.model.Absence;
 import com.kubsu.accounting.model.Course;
 import com.kubsu.accounting.model.Student;
 import com.kubsu.accounting.rest.UserServiceClient;
@@ -103,43 +106,32 @@ public class AccountingController {
         return accountingService.getDatesOfCourse(courseId, groupId, userDetails.getId());
     }
 
-    @PostMapping("/lecturers/setAbsences")
+    @PostMapping("/lecturers/absences")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
-    public ResponseEntity<?> setAbsenceStudent(@RequestBody Long studentId,
-                                               Long courseId,
-                                               OffsetDateTime absenceDate,
-                                               Long absenceTypeId) {
+    public ResponseEntity<?> setAbsenceStudent(@RequestBody SetAbsenceRequestDTO setAbsenceRequestDTO) {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        return ResponseEntity.ok(accountingService.setAbsenceStudents(studentId, userDetails.getId(), courseId, absenceDate, absenceTypeId));
+        return ResponseEntity.ok(accountingService.setAbsenceStudents(setAbsenceRequestDTO.getStudentId(),
+                userDetails.getId(),
+                setAbsenceRequestDTO.getCourseId(),
+                setAbsenceRequestDTO.getAbsenceDate(),
+                setAbsenceRequestDTO.getAbsenceTypeId()));
     }
 
-    @GetMapping("/generate-report")
-    public ResponseEntity<byte[]> generateReport() throws IOException {
-        // Создаем новую книгу Excel
-        Workbook workbook = new XSSFWorkbook();
-        // Создаем лист
-        Sheet sheet = workbook.createSheet("Отчет");
+    @GetMapping("/lecturers/absences/courses/{courseId}/groups/{groupId}")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public List<GetAbsenceResponseDTO> getAbsences(@PathVariable Long courseId, @PathVariable Long groupId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        // Создаем и заполняем ячейки (пример)
-        Row row = sheet.createRow(0);
-        Cell cell = row.createCell(0);
-        cell.setCellValue("Пример данных");
+        List<Absence> absences = accountingService.getAbsenceStudents(groupId, userDetails.getId(), courseId);
 
-        // Генерируем XLSX-файл в памяти
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-
-        // Устанавливаем заголовки для ответа
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", "report.xlsx");
-
-        // Отправляем XLSX-файл в ответе
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(outputStream.toByteArray());
+        return absences
+                .stream()
+                .map(GetAbsenceResponseDTO::new)
+                .collect(Collectors.toList());
     }
 }

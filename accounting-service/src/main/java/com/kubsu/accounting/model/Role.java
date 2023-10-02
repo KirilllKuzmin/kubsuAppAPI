@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
-@Table(name = "roles", schema = "accounting_schema")
+@Table(name = "roles")
 public class Role {
 
     @Id
