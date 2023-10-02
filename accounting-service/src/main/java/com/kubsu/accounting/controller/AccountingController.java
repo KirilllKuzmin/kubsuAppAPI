@@ -7,6 +7,8 @@ import com.kubsu.accounting.model.Student;
 import com.kubsu.accounting.rest.UserServiceClient;
 import com.kubsu.accounting.service.AccountingService;
 import com.kubsu.accounting.service.UserDetailsImpl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -14,6 +16,13 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,5 +114,32 @@ public class AccountingController {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         return ResponseEntity.ok(accountingService.setAbsenceStudents(studentId, userDetails.getId(), courseId, absenceDate, absenceTypeId));
+    }
+
+    @GetMapping("/generate-report")
+    public ResponseEntity<byte[]> generateReport() throws IOException {
+        // Создаем новую книгу Excel
+        Workbook workbook = new XSSFWorkbook();
+        // Создаем лист
+        Sheet sheet = workbook.createSheet("Отчет");
+
+        // Создаем и заполняем ячейки (пример)
+        Row row = sheet.createRow(0);
+        Cell cell = row.createCell(0);
+        cell.setCellValue("Пример данных");
+
+        // Генерируем XLSX-файл в памяти
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+
+        // Устанавливаем заголовки для ответа
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "report.xlsx");
+
+        // Отправляем XLSX-файл в ответе
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(outputStream.toByteArray());
     }
 }
