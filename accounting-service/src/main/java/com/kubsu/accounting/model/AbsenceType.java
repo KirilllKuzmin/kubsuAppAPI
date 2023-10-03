@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
+@Getter
 @Table(name = "absence_types", schema = "accounting_schema")
 public class AbsenceType {
 
@@ -11,7 +12,6 @@ public class AbsenceType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Getter
     @Column
     private String name;
 }
