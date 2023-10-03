@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountingService {
@@ -59,7 +60,10 @@ public class AccountingService {
                 new LecturerNotFoundException("Unable to find lecturer with user_id" + userId));
 
         return timetableRepository.findDistinctCoursesByLecturer(lecturer).orElseThrow(() ->
-                new TimetableNotFoundException("Unable to find courses from the lecturer with user_id" + userId));
+                new TimetableNotFoundException("Unable to find courses from the lecturer with user_id" + userId))
+                .stream()
+                .sorted(Comparator.comparing(Course::getName))
+                .collect(Collectors.toList());
     }
 
     public Set<Long> courseGroups(Long courseId, Long userId) {

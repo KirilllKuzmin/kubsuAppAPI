@@ -83,7 +83,10 @@ public class UserService {
     }
 
     public List<Group> getAllGroups(List<Long> groupIds) {
-        return groupRepository.findAllById(groupIds);
+        return groupRepository.findAllById(groupIds)
+                .stream()
+                .sorted(Comparator.comparing(Group::getName))
+                .collect(Collectors.toList());
     }
 
     public List<User> getAllStudents(List<Long> userIds) {
