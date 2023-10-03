@@ -1,12 +1,10 @@
 package com.kubsu.accounting.controller;
 
-import com.kubsu.accounting.dto.GetAbsenceResponseDTO;
-import com.kubsu.accounting.dto.GroupResponseDTO;
-import com.kubsu.accounting.dto.SetAbsenceRequestDTO;
-import com.kubsu.accounting.dto.StudentResponseDTO;
+import com.kubsu.accounting.dto.*;
 import com.kubsu.accounting.model.Absence;
 import com.kubsu.accounting.model.Course;
 import com.kubsu.accounting.model.Student;
+import com.kubsu.accounting.model.WorkDate;
 import com.kubsu.accounting.rest.UserServiceClient;
 import com.kubsu.accounting.service.AccountingService;
 import com.kubsu.accounting.service.UserDetailsImpl;
@@ -132,6 +130,19 @@ public class AccountingController {
         return absences
                 .stream()
                 .map(GetAbsenceResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/lecturers/courses/{courseId}/groups/{groupId}/works")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('STUDENT') or hasRole('ADMIN')")
+    public List<WorkDateResponseDTO> workDates(@PathVariable Long courseId, @PathVariable Long groupId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return accountingService.getWorkDates(courseId, groupId, userDetails.getId())
+                .stream()
+                .map(WorkDateResponseDTO::new)
                 .collect(Collectors.toList());
     }
 }

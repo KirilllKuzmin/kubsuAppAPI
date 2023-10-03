@@ -3,8 +3,6 @@ package com.kubsu.accounting.service;
 import com.kubsu.accounting.exception.*;
 import com.kubsu.accounting.model.*;
 import com.kubsu.accounting.repository.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -34,6 +32,8 @@ public class AccountingService {
 
     private final AbsenceTypeRepository absenceTypeRepository;
 
+    private final WorkDateRepository workDateRepository;
+
     public AccountingService(LecturerRepository lecturerRepository,
                              StudentRepository studentRepository,
                              TimetableRepository timetableRepository,
@@ -41,7 +41,8 @@ public class AccountingService {
                              SemesterRepository semesterRepository,
                              CourseRepository courseRepository,
                              AbsenceRepository absenceRepository,
-                             AbsenceTypeRepository absenceTypeRepository) {
+                             AbsenceTypeRepository absenceTypeRepository,
+                             WorkDateRepository workDateRepository) {
         this.lecturerRepository = lecturerRepository;
         this.studentRepository = studentRepository;
         this.timetableRepository = timetableRepository;
@@ -50,6 +51,7 @@ public class AccountingService {
         this.courseRepository = courseRepository;
         this.absenceRepository = absenceRepository;
         this.absenceTypeRepository = absenceTypeRepository;
+        this.workDateRepository = workDateRepository;
     }
 
     public List<Course> lecturerCourses(Long userId) {
@@ -176,5 +178,29 @@ public class AccountingService {
                 new AbsenceNotFoundException("Unable to find absenceIds"));
 
         return absenceRepository.findAllById(absenceIds);
+    }
+
+    public List<WorkDate> getWorkDates(Long courseId, Long groupId, Long lecturerId) {
+        OffsetDateTime currentDate = OffsetDateTime.now();
+
+        List<OffsetDateTime> courseDates = new ArrayList<>();
+
+        Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
+                new LecturerNotFoundException("Unable to find lecturer with user_id" + lecturerId));
+
+        Semester currentSemester = semesterRepository.findSemesterByStartDateBeforeAndEndDateAfter(currentDate, currentDate)
+                .orElseThrow(() -> new SemesterNotFoundException("Unable to find semester in date current date"));
+
+        List<Long> timetableIds = timetableRepository.findAllByCourseAndSemesterAndLecturerAndGroup(
+                        courseRepository.findById(courseId).orElseThrow(() ->
+                                new CourseNotFoundException("Unable to find course with id " + courseId)), currentSemester, lecturer, groupId)
+                .orElseThrow(() -> new TimetableNotFoundException("Unable to find timetable with course_id" + courseId));
+
+        List<Timetable> timetables = timetableRepository.findAllById(timetableIds);
+
+        List<Long> workDateIds = workDateRepository.findAllIdsByTimetables(timetables).orElseThrow(() ->
+                new WorkDateNotFoundException("unable to find work dates with timetables " + timetables));
+
+        return workDateRepository.findAllById(workDateIds);
     }
 }

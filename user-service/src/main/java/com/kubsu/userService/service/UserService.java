@@ -28,6 +28,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -86,7 +87,10 @@ public class UserService {
     }
 
     public List<User> getAllStudents(List<Long> userIds) {
-        return userRepository.findAllById(userIds);
+        return userRepository.findAllById(userIds)
+                .stream()
+                .sorted(Comparator.comparing(User::getFullName))
+                .collect(Collectors.toList());
     }
 
     @Async
