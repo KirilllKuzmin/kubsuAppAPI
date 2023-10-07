@@ -145,4 +145,24 @@ public class AccountingController {
                 .map(WorkDateResponseDTO::new)
                 .collect(Collectors.toList());
     }
+
+    @GetMapping("/workTypes")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('STUDENT') or hasRole('ADMIN')")
+    public List<TypeOfWorkResponseDTO> workDates() {
+
+        return accountingService.getWorkTypes()
+                .stream()
+                .map(TypeOfWorkResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/lecturers/courses/{courseId}/groups/{groupId}/works")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
+    public ResponseEntity<?> setWorkTypes(@PathVariable Long courseId, @PathVariable Long groupId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return null;
+    }
 }

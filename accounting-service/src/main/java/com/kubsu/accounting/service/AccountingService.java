@@ -35,6 +35,8 @@ public class AccountingService {
 
     private final WorkDateRepository workDateRepository;
 
+    private final TypeOfWorkRepository typeOfWorkRepository;
+
     public AccountingService(LecturerRepository lecturerRepository,
                              StudentRepository studentRepository,
                              TimetableRepository timetableRepository,
@@ -43,7 +45,8 @@ public class AccountingService {
                              CourseRepository courseRepository,
                              AbsenceRepository absenceRepository,
                              AbsenceTypeRepository absenceTypeRepository,
-                             WorkDateRepository workDateRepository) {
+                             WorkDateRepository workDateRepository,
+                             TypeOfWorkRepository typeOfWorkRepository) {
         this.lecturerRepository = lecturerRepository;
         this.studentRepository = studentRepository;
         this.timetableRepository = timetableRepository;
@@ -53,6 +56,7 @@ public class AccountingService {
         this.absenceRepository = absenceRepository;
         this.absenceTypeRepository = absenceTypeRepository;
         this.workDateRepository = workDateRepository;
+        this.typeOfWorkRepository = typeOfWorkRepository;
     }
 
     public List<Course> lecturerCourses(Long userId) {
@@ -206,5 +210,9 @@ public class AccountingService {
                 new WorkDateNotFoundException("unable to find work dates with timetables " + timetables));
 
         return workDateRepository.findAllById(workDateIds);
+    }
+
+    public List<TypeOfWork> getWorkTypes() {
+        return typeOfWorkRepository.findAll();
     }
 }
