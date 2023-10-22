@@ -8,8 +8,6 @@ import com.kubsu.accounting.model.WorkDate;
 import com.kubsu.accounting.rest.UserServiceClient;
 import com.kubsu.accounting.service.AccountingService;
 import com.kubsu.accounting.service.UserDetailsImpl;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -17,19 +15,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+
 
 @RestController
 @RequestMapping("/accounting")
@@ -156,13 +147,18 @@ public class AccountingController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/lecturers/courses/{courseId}/groups/{groupId}/works")
+    @PostMapping("/lecturers/courses/{courseId}/groups/{groupId}/works/{workTypeId}/dates/{workDate}")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
-    public ResponseEntity<?> setWorkTypes(@PathVariable Long courseId, @PathVariable Long groupId) {
+    public WorkDateResponseDTO setWorkTypes(@PathVariable Long courseId,
+                                          @PathVariable Long groupId,
+                                          @PathVariable Long workTypeId,
+                                          @PathVariable OffsetDateTime workDate) {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        return null;
+        WorkDate workDateResponse = accountingService.setWorks(courseId, groupId, userDetails.getId(), workTypeId, workDate);
+
+        return new WorkDateResponseDTO(workDateResponse.getTypeOfWork(), workDateResponse.getWorkDate());
     }
 }

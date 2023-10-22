@@ -12,4 +12,6 @@ public interface WorkDateRepository extends JpaRepository<WorkDate, Long> {
 
     @Query("SELECT wd.id FROM WorkDate wd WHERE wd.timetable in (:timetables)")
     Optional<List<Long>> findAllIdsByTimetables(List<Timetable> timetables);
+
+    Optional<WorkDate> findByTimetable(Timetable timetable);
 }

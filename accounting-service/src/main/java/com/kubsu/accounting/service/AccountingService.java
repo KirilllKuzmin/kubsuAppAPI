@@ -140,6 +140,7 @@ public class AccountingService {
 
         Long dayOfWeek = (long) absenceDate.getDayOfWeek().getValue();
 
+        //Ye;
         Long timetableId = timetableRepository.findByCourseAndLecturerAndDayOfWeek(course, lecturer, dayOfWeek).orElseThrow(() ->
                 new TimetableNotFoundException("Unable to find timetable"));
 
@@ -214,5 +215,35 @@ public class AccountingService {
 
     public List<TypeOfWork> getWorkTypes() {
         return typeOfWorkRepository.findAll();
+    }
+
+    public WorkDate setWorks(Long courseId, Long groupId, Long lecturerId, Long workTypeId, OffsetDateTime workDate) {
+        OffsetDateTime currentDate = OffsetDateTime.now();
+
+        List<OffsetDateTime> courseDates = new ArrayList<>();
+
+        Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
+                new LecturerNotFoundException("Unable to find lecturer with user_id=" + lecturerId));
+
+        Semester currentSemester = semesterRepository.findSemesterByStartDateBeforeAndEndDateAfter(currentDate, currentDate)
+                .orElseThrow(() -> new SemesterNotFoundException("Unable to find semester in date current date"));
+
+        Long dayOfWeek = (long) workDate.getDayOfWeek().getValue();
+
+        Long timetableId = timetableRepository.findAllByCourseAndSemesterAndLecturerAndGroupAndDayOfWeek(
+                        courseRepository.findById(courseId).orElseThrow(() ->
+                                new CourseNotFoundException("Unable to find course with id " + courseId)), currentSemester, lecturer, groupId, dayOfWeek)
+                .orElseThrow(() -> new TimetableNotFoundException("Unable to find timetable with course_id=" + courseId));
+
+        Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() ->
+                new TimetableNotFoundException("Unable to find timetable with id: " + timetableId));
+
+        TypeOfWork typeOfWork = typeOfWorkRepository.findById(workTypeId).orElseThrow(() ->
+                new TypeOfWorkNotFoundException("Unable to find work type by id: " + workTypeId));
+
+        workDateRepository.save(new WorkDate(timetable, workDate, typeOfWork));
+
+        return workDateRepository.findByTimetable(timetable).orElseThrow(() ->
+                new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
     }
 }
