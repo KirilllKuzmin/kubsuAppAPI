@@ -238,12 +238,20 @@ public class AccountingService {
         Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() ->
                 new TimetableNotFoundException("Unable to find timetable with id: " + timetableId));
 
+        if (workTypeId == 0) {
+            List<Long> workDateToDeleteIds = workDateRepository.findAllByTimetableAndDateOfWorkAndSemester(timetable, workDate, currentSemester)
+                    .orElseThrow(() -> new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
+            workDateRepository.deleteAllById(workDateToDeleteIds);
+
+            return new WorkDate();
+        }
+
         TypeOfWork typeOfWork = typeOfWorkRepository.findById(workTypeId).orElseThrow(() ->
                 new TypeOfWorkNotFoundException("Unable to find work type by id: " + workTypeId));
 
         workDateRepository.save(new WorkDate(timetable, workDate, typeOfWork));
 
-        return workDateRepository.findByTimetable(timetable).orElseThrow(() ->
+        return workDateRepository.findByTimetableAndDateOfWorkAndSemester(timetable, dayOfWeek, currentSemester).orElseThrow(() ->
                 new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
     }
 }
