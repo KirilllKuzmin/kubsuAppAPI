@@ -15,6 +15,9 @@ public interface TimetableRepository extends JpaRepository<Timetable, Long> {
 
     Optional<Set<Timetable>> findAllByCourseAndLecturer(Course course, Lecturer lecturer);
 
+    Optional<List<Timetable>> findAllByLecturerAndSemester(Lecturer lecturer,
+                                                           Semester semester);
+
     @Query("SELECT DISTINCT t.id " +
             " FROM Timetable t " +
             "WHERE t.course = :course " +

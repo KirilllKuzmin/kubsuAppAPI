@@ -6,6 +6,7 @@ import lombok.Getter;
 import java.time.OffsetDateTime;
 
 @Entity
+@Getter
 @Table(name = "number_time_classes_held", schema = "accounting_schema")
 public class NumberTimeClassHeld {
 
