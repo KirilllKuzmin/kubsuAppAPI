@@ -1,10 +1,7 @@
 package com.kubsu.accounting.controller;
 
 import com.kubsu.accounting.dto.*;
-import com.kubsu.accounting.model.Absence;
-import com.kubsu.accounting.model.Course;
-import com.kubsu.accounting.model.Student;
-import com.kubsu.accounting.model.WorkDate;
+import com.kubsu.accounting.model.*;
 import com.kubsu.accounting.rest.UserServiceClient;
 import com.kubsu.accounting.service.AccountingService;
 import com.kubsu.accounting.service.UserDetailsImpl;
@@ -160,5 +157,34 @@ public class AccountingController {
         WorkDate workDateResponse = accountingService.setWorks(courseId, groupId, userDetails.getId(), workTypeId, workDate);
 
         return new WorkDateResponseDTO(workDateResponse.getTypeOfWork(), workDateResponse.getWorkDate());
+    }
+
+    @PostMapping("/lecturers/evaluations")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
+    public ResponseEntity<?> setEvaluationStudent(@RequestBody SetEvaluationRequestDTO setEvaluationRequestDTO) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return ResponseEntity.ok(accountingService.setEvaluationStudents(setEvaluationRequestDTO.getStudentId(),
+                userDetails.getId(),
+                setEvaluationRequestDTO.getCourseId(),
+                setEvaluationRequestDTO.getEvaluationDate(),
+                setEvaluationRequestDTO.getEvaluationTypeId()));
+    }
+
+    @GetMapping("/lecturers/evaluations/courses/{courseId}/groups/{groupId}")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public List<GetEvaluationResponseDTO> getEvaluations(@PathVariable Long courseId, @PathVariable Long groupId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        List<Evaluation> evaluations = accountingService.getEvaluationStudents(groupId, userDetails.getId(), courseId);
+
+        return evaluations
+                .stream()
+                .map(GetEvaluationResponseDTO::new)
+                .collect(Collectors.toList());
     }
 }

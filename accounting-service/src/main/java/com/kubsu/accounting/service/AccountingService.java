@@ -37,6 +37,10 @@ public class AccountingService {
 
     private final TypeOfWorkRepository typeOfWorkRepository;
 
+    private final EvaluationRepository evaluationRepository;
+
+    private final EvaluationTypeRepository evaluationTypeRepository;
+
     public AccountingService(LecturerRepository lecturerRepository,
                              StudentRepository studentRepository,
                              TimetableRepository timetableRepository,
@@ -46,7 +50,9 @@ public class AccountingService {
                              AbsenceRepository absenceRepository,
                              AbsenceTypeRepository absenceTypeRepository,
                              WorkDateRepository workDateRepository,
-                             TypeOfWorkRepository typeOfWorkRepository) {
+                             TypeOfWorkRepository typeOfWorkRepository,
+                             EvaluationRepository evaluationRepository,
+                             EvaluationTypeRepository evaluationTypeRepository) {
         this.lecturerRepository = lecturerRepository;
         this.studentRepository = studentRepository;
         this.timetableRepository = timetableRepository;
@@ -57,6 +63,8 @@ public class AccountingService {
         this.absenceTypeRepository = absenceTypeRepository;
         this.workDateRepository = workDateRepository;
         this.typeOfWorkRepository = typeOfWorkRepository;
+        this.evaluationRepository = evaluationRepository;
+        this.evaluationTypeRepository = evaluationTypeRepository;
     }
 
     public List<Course> lecturerCourses(Long userId) {
@@ -253,5 +261,67 @@ public class AccountingService {
 
         return workDateRepository.findByTimetableAndDateOfWorkAndSemester(timetable, dayOfWeek, currentSemester).orElseThrow(() ->
                 new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
+    }
+
+    public String setEvaluationStudents(Long studentId, Long lecturerId, Long courseId, OffsetDateTime evaluationDate, Long evaluationTypeId) {
+
+        Student student = studentRepository.findByUserId(studentId).orElseThrow(() ->
+                new StudentNotFoundException("Unable to find student with user_id = " + studentId));
+
+        Course course = courseRepository.findById(courseId).orElseThrow(() ->
+                new CourseNotFoundException("Unable to find course_id" + courseId));
+
+        Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
+                new LecturerNotFoundException("Unable to find lecturer with user_id = " + lecturerId));
+
+        Long dayOfWeek = (long) evaluationDate.getDayOfWeek().getValue();
+
+        //Ye;
+        Long timetableId = timetableRepository.findByCourseAndLecturerAndDayOfWeek(course, lecturer, dayOfWeek).orElseThrow(() ->
+                new TimetableNotFoundException("Unable to find timetable"));
+
+        Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() ->
+                new TimetableNotFoundException("Unable to find timetable with id = " + timetableId));
+
+        if (evaluationTypeId == null) {
+            List<Long> evaluationIdsToDelete = evaluationRepository.findAllByStudentAndTimetableAndEvaluationDate(student, timetable, evaluationDate)
+                    .orElseThrow(() -> new EvaluationNotFoundException("Unable to find evaluation" + student + timetable + evaluationDate));
+            evaluationRepository.deleteAllById(evaluationIdsToDelete);
+
+            return "Remove success";
+        }
+        EvaluationType evaluationType = evaluationTypeRepository.findById(evaluationTypeId).orElseThrow(() ->
+                new EvaluationTypeNotFoundException("Unable to find evaluationType with id = " + evaluationTypeId));
+
+        evaluationRepository.save(new Evaluation(timetable, student, evaluationDate, OffsetDateTime.now(), evaluationType));
+
+        return "Success";
+    }
+
+    public List<Evaluation> getEvaluationStudents(Long groupId, Long lecturerId, Long courseId) {
+        OffsetDateTime currentDate = OffsetDateTime.now();
+
+        Semester currentSemester = semesterRepository.findSemesterByStartDateBeforeAndEndDateAfter(currentDate, currentDate)
+                .orElseThrow(() -> new SemesterNotFoundException("Unable to find semester in date current date"));
+
+        Course course = courseRepository.findById(courseId).orElseThrow(() ->
+                new CourseNotFoundException("Unable to find course_id" + courseId));
+
+        Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
+                new LecturerNotFoundException("Unable to find lecturer with user_id = " + lecturerId));
+
+        List<Long> timetableIds = timetableRepository.findAllByCourseAndSemesterAndLecturerAndGroup(
+                        course, currentSemester, lecturer, groupId)
+                .orElseThrow(() -> new TimetableNotFoundException("Unable to find timetable with course_id" + courseId));
+
+        List<Timetable> timetables = timetableRepository.findAllById(timetableIds);
+
+        List<Student> students = studentRepository.findAllByGroupId(groupId).orElseThrow(() ->
+                new StudentNotFoundException("Unable to find student"));
+
+        List<Long> evaluationIds = evaluationRepository.findAllByStudentAndTimetable(students, timetables).orElseThrow(() ->
+                new AbsenceNotFoundException("Unable to find absenceIds"));
+
+        return evaluationRepository.findAllById(evaluationIds);
     }
 }
