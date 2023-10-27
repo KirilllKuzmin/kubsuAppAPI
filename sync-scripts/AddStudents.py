@@ -28,7 +28,7 @@ cur = conn.cursor()
 for index, user in enumerate(users, start=1):
     cur.execute("""
         INSERT INTO users (kubsu_user_id, username, full_name, email, password, group_id, start_education_date, end_education_date, create_date)
-        VALUES (null, 's039' || %s, %s, 's039' || %s || '@mail.ru', '$2a$10$Thspx4IkWx/ujYOYBVfNyO/GqwD.9R6yGWKgyFFCT5W17iYkFcZfq', 436, null, null, CURRENT_TIMESTAMP)
+        VALUES (null, 's039' || %s, %s, 's039' || %s || '@mail.ru', '', 436, null, null, CURRENT_TIMESTAMP)
     """, (index, user, index))
     conn.commit()
 
