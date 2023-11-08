@@ -3,6 +3,7 @@ package com.kubsu.accounting.service;
 import com.kubsu.accounting.exception.*;
 import com.kubsu.accounting.model.*;
 import com.kubsu.accounting.repository.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class AccountingService {
 
@@ -225,8 +227,10 @@ public class AccountingService {
         return typeOfWorkRepository.findAll();
     }
 
-    public WorkDate setWorks(Long courseId, Long groupId, Long lecturerId, Long workTypeId, OffsetDateTime workDate) {
+    public List<WorkDate> setWorks(Long courseId, Long groupId, Long lecturerId, List<Long> workTypeIds, OffsetDateTime workDate) {
         OffsetDateTime currentDate = OffsetDateTime.now();
+
+        log.info(workTypeIds.toString());
 
         List<OffsetDateTime> courseDates = new ArrayList<>();
 
@@ -246,21 +250,39 @@ public class AccountingService {
         Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() ->
                 new TimetableNotFoundException("Unable to find timetable with id: " + timetableId));
 
-        if (workTypeId == 0) {
+        if (workTypeIds.isEmpty()) {
             List<Long> workDateToDeleteIds = workDateRepository.findAllByTimetableAndDateOfWorkAndSemester(timetable, workDate, currentSemester)
                     .orElseThrow(() -> new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
+
             workDateRepository.deleteAllById(workDateToDeleteIds);
 
-            return new WorkDate();
+            return new ArrayList<WorkDate>();
         }
 
-        TypeOfWork typeOfWork = typeOfWorkRepository.findById(workTypeId).orElseThrow(() ->
-                new TypeOfWorkNotFoundException("Unable to find work type by id: " + workTypeId));
+        List<TypeOfWork> typeOfWorks = typeOfWorkRepository.findAllById(workTypeIds);
 
-        workDateRepository.save(new WorkDate(timetable, workDate, typeOfWork));
+        List<TypeOfWork> allTypeOfWorks = typeOfWorkRepository.findAll();
 
-        return workDateRepository.findByTimetableAndDateOfWorkAndSemester(timetable, dayOfWeek, currentSemester).orElseThrow(() ->
+        for (TypeOfWork typeOfWork : allTypeOfWorks) {
+            if (!workDateRepository.existsByTimetableAndWorkDateAndTypeOfWork(timetable, workDate, typeOfWork)) {
+                if (typeOfWorks.contains(typeOfWork)) {
+                    workDateRepository.save(new WorkDate(timetable, workDate, typeOfWork));
+                }
+            } else if (!typeOfWorks.contains(typeOfWork)) {
+                Long workDateToDeleteId = workDateRepository.findByTimetableAndDateOfWorkAndTypeOfWork(timetable, workDate, typeOfWork)
+                        .orElseThrow(() -> new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
+
+                WorkDate workDateToDelete = workDateRepository.findById(workDateToDeleteId)
+                        .orElseThrow(() -> new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
+
+                workDateRepository.delete(workDateToDelete);
+            }
+        }
+
+        List<Long> workDateIds = workDateRepository.findAllByTimetableAndDateOfWorkAndSemester(timetable, workDate, currentSemester).orElseThrow(() ->
                 new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
+
+        return workDateRepository.findAllById(workDateIds);
     }
 
     public String setEvaluationStudents(Long studentId, Long lecturerId, Long courseId, OffsetDateTime evaluationDate, Long evaluationTypeId) {

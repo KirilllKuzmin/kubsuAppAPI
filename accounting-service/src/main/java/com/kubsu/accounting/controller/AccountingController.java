@@ -144,19 +144,22 @@ public class AccountingController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/lecturers/courses/{courseId}/groups/{groupId}/works/{workTypeId}/dates/{workDate}")
+    @PostMapping("/lecturers/courses/{courseId}/groups/{groupId}/dates/{workDate}/works")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
-    public WorkDateResponseDTO setWorkTypes(@PathVariable Long courseId,
-                                          @PathVariable Long groupId,
-                                          @PathVariable Long workTypeId,
-                                          @PathVariable OffsetDateTime workDate) {
+    public List<WorkDateResponseDTO> setWorkTypes(@PathVariable Long courseId,
+                                            @PathVariable Long groupId,
+                                            @PathVariable OffsetDateTime workDate,
+                                            @RequestBody List<Long> workDates) {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        WorkDate workDateResponse = accountingService.setWorks(courseId, groupId, userDetails.getId(), workTypeId, workDate);
+        List<WorkDate> workDateResponse = accountingService.setWorks(courseId, groupId, userDetails.getId(), workDates, workDate);
 
-        return new WorkDateResponseDTO(workDateResponse.getTypeOfWork(), workDateResponse.getWorkDate());
+        return workDateResponse
+                .stream()
+                .map(WorkDateResponseDTO::new)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/lecturers/evaluations")

@@ -56,7 +56,7 @@ public class UserController {
     }
 
     @GetMapping("groups")
-    public List<GroupResponseDTO> allGroups(@RequestParam List<Long> groupId) {
+    public List<GroupResponseDTO> allGroups(@RequestParam(required = false) List<Long> groupId) {
         return userService.getAllGroups(groupId)
                 .stream()
                 .map(GroupResponseDTO::new)

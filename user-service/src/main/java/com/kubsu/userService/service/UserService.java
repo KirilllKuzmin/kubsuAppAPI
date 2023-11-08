@@ -1,5 +1,6 @@
 package com.kubsu.userService.service;
 
+import com.kubsu.userService.controller.dto.GroupResponseDTO;
 import com.kubsu.userService.exception.DegreeOfStudyNotFoundException;
 import com.kubsu.userService.exception.GroupNotFoundException;
 import com.kubsu.userService.exception.SpecialtyNotFoundException;
@@ -83,6 +84,12 @@ public class UserService {
     }
 
     public List<Group> getAllGroups(List<Long> groupIds) {
+        if (groupIds == null)
+            return groupRepository.findAll()
+                    .stream()
+                    .sorted(Comparator.comparing(Group::getName))
+                    .collect(Collectors.toList());
+
         return groupRepository.findAllById(groupIds)
                 .stream()
                 .sorted(Comparator.comparing(Group::getName))
