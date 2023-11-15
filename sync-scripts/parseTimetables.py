@@ -5,7 +5,7 @@ import json
 db_host = "localhost"
 db_name = "kubsuAppDB"
 db_user = "postgres"
-db_password = "%"
+db_password = "%%%"
 
 api_url = "https://api.cube.nlabs.su"
 api_endpoint = "/api/timetable/main_lessons/viewer?group="
@@ -31,6 +31,10 @@ for group in groups:
 
     response = requests.get(api_url + api_endpoint + str(group))
     data = response.json()
+    print(data)
+
+    if "detail" in data:
+        continue
 
     items = data["data"]
 
@@ -69,6 +73,11 @@ for group in groups:
                         VALUES (%s, 1)
                         RETURNING id
                     """, (place_name,))
+
+            cur.execute("""
+                        select id from accounting_schema.classrooms where classroom_number = %s
+                    """, (place_name,))
+
             classroom_number = cur.fetchone()
         else:
             cur.execute("""
@@ -86,6 +95,11 @@ for group in groups:
                         VALUES (%s)
                         RETURNING id
                     """, (type_name,))
+
+            cur.execute("""
+                        select id from accounting_schema.course_types where name = %s
+                    """, (type_name,))
+
             type_id = cur.fetchone()
         else:
             cur.execute("""
@@ -103,6 +117,11 @@ for group in groups:
                         VALUES (%s, %s)
                         RETURNING id
                     """, (discipline_name, type_id))
+
+            cur.execute("""
+                        select id from accounting_schema.courses where name = %s AND course_type_id = %s
+                    """, (discipline_name,type_id))
+
             course_id = cur.fetchone()
         else:
             cur.execute("""
@@ -128,6 +147,10 @@ for group in groups:
                         RETURNING id
                     """, (user_id,))
 
+                cur.execute("""
+                        select id from accounting_schema.lecturers where user_id = %s
+                    """, (user_id,))
+
                 lecturer_id = cur.fetchone()
             else:
                 cur.execute("""
@@ -144,12 +167,45 @@ for group in groups:
             partity = 2
 
         if number != 0:
-            cur.execute("""
-                    INSERT INTO accounting_schema.timetables (classroom_id, lecturer_id, course_id, day_of_week, num_time_class_id, week_type_id, semester_id)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    RETURNING id
-                """, (classroom_number, lecturer_id, course_id, weekday + 1, number, parity, 1))
-            timetable_id = cur.fetchone()
+            weekday += 1
+
+            if not parity:
+                cur.execute("""
+                        select id 
+                          from accounting_schema.timetables 
+                         where classroom_id = %s
+                           and lecturer_id = %s 
+                           and course_id = %s
+                           and day_of_week = %s
+                           and num_time_class_id = %s
+                           and semester_id = %s
+                    """, (classroom_number, lecturer_id, course_id, weekday, number, 1))
+
+                timetable_id = cur.fetchone()
+            else:
+                cur.execute("""
+                            select id 
+                              from accounting_schema.timetables 
+                             where classroom_id = %s
+                               and lecturer_id = %s 
+                               and course_id = %s
+                               and day_of_week = %s
+                               and num_time_class_id = %s
+                               and week_type_id = %s
+                               and semester_id = %s
+                        """, (classroom_number, lecturer_id, course_id, weekday, number, parity, 1))
+
+                timetable_id = cur.fetchone()
+
+
+            if not timetable_id:
+                cur.execute("""
+                        INSERT INTO accounting_schema.timetables (classroom_id, lecturer_id, course_id, day_of_week, num_time_class_id, week_type_id, semester_id)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        RETURNING id
+                    """, (classroom_number, lecturer_id, course_id, weekday, number, parity, 1))
+
+                timetable_id = cur.fetchone()
 
         cur.execute("""
                     INSERT INTO accounting_schema.timetable_groups (timetable_id, group_id)

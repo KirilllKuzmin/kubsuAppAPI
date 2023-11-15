@@ -6,7 +6,7 @@ import json
 db_host = "localhost"
 db_name = "kubsuAppDB"
 db_user = "postgres"
-db_password = "%"
+db_password = "%%%"
 
 # URL для GET-запроса и API-эндпоинт
 api_url = "https://api.cube.nlabs.su"
