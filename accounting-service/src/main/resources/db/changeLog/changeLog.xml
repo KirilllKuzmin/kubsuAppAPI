@@ -11,7 +11,9 @@
     <include file="db/table/user_roles.xml"/>
     <include file="db/table/absence_types.xml"/>
     <include file="db/table/course_types.xml"/>
+    <include file="db/table/evaluation_grade_systems.xml"/>
     <include file="db/table/evaluation_types.xml"/>
+    <include file="db/table/evaluation_grades.xml"/>
     <include file="db/table/types_of_work.xml"/>
     <include file="db/table/academic_buildings.xml"/>
     <include file="db/table/academic_degrees.xml"/>

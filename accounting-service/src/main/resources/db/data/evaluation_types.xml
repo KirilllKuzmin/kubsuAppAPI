@@ -5,6 +5,14 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
     <changeSet id="accounting_1_insert-evaluation-types-table" author="Kirill.Kuzmin">
         <insert tableName="evaluation_types" schemaName="accounting_schema">
+            <column name="evaluation_name" value="Не зачтено"/>
+            <column name="evaluation_number" value="0"/>
+        </insert>
+        <insert tableName="evaluation_types" schemaName="accounting_schema">
+            <column name="evaluation_name" value="Зачтено"/>
+            <column name="evaluation_number" value="1"/>
+        </insert>
+        <insert tableName="evaluation_types" schemaName="accounting_schema">
             <column name="evaluation_name" value="Неудовлетворительно"/>
             <column name="evaluation_number" value="2"/>
         </insert>

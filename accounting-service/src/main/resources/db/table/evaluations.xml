@@ -24,10 +24,10 @@
             <column name="event_date" type="timestamp">
                 <constraints nullable="false"/>
             </column>
-            <column name="evaluation_type_id" type="int">
+            <column name="evaluation_grade_id" type="int">
                 <constraints nullable="false"
-                             foreignKeyName="fk_evaluations_evaluation_types"
-                             references="accounting_schema.evaluation_types(id)"/>
+                             foreignKeyName="fk_evaluations_evaluation_grades"
+                             references="accounting_schema.evaluation_grades(id)"/>
             </column>
         </createTable>
     </changeSet>
