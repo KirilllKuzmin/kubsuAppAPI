@@ -136,7 +136,7 @@ public class AccountingController {
 
     @GetMapping("/workTypes")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('STUDENT') or hasRole('ADMIN')")
-    public List<TypeOfWorkResponseDTO> workDates() {
+    public List<TypeOfWorkResponseDTO> workTypes() {
 
         return accountingService.getWorkTypes()
                 .stream()
@@ -149,17 +149,27 @@ public class AccountingController {
     public List<WorkDateResponseDTO> setWorkTypes(@PathVariable Long courseId,
                                             @PathVariable Long groupId,
                                             @PathVariable OffsetDateTime workDate,
-                                            @RequestBody List<Long> workDates) {
+                                            @RequestBody List<SetWorkTypesRequestDTO> workTypes) {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        List<WorkDate> workDateResponse = accountingService.setWorks(courseId, groupId, userDetails.getId(), workDates, workDate);
+        List<WorkDate> workDateResponse = accountingService.setWorks(courseId, groupId, userDetails.getId(), workTypes, workDate);
 
         return workDateResponse
                 .stream()
                 .map(WorkDateResponseDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/lecturers/evaluations/systems")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
+    public SetEvaluationSystemResponseDTO setEvaluationSystem(@RequestBody SetEvaluationSystemRequestDTO setEvaluationSystemRequestDTO) {
+
+        return new SetEvaluationSystemResponseDTO(accountingService.setEvaluationSystem(
+                setEvaluationSystemRequestDTO.getMinGrade(),
+                setEvaluationSystemRequestDTO.getMaxGrade(),
+                setEvaluationSystemRequestDTO.getPassingGrade()));
     }
 
     @PostMapping("/lecturers/evaluations")
@@ -172,8 +182,10 @@ public class AccountingController {
         return ResponseEntity.ok(accountingService.setEvaluationStudents(setEvaluationRequestDTO.getStudentId(),
                 userDetails.getId(),
                 setEvaluationRequestDTO.getCourseId(),
+                setEvaluationRequestDTO.getTypeOfWorkId(),
                 setEvaluationRequestDTO.getEvaluationDate(),
-                setEvaluationRequestDTO.getEvaluationTypeId()));
+                setEvaluationRequestDTO.getEvaluationGradeSystemId(),
+                setEvaluationRequestDTO.getPointNumber()));
     }
 
     @GetMapping("/lecturers/evaluations/courses/{courseId}/groups/{groupId}")

@@ -16,11 +16,11 @@ public class GetEvaluationResponseDTO {
 
     private OffsetDateTime evaluationDate;
 
-    private EvaluationType evaluationType;
+    private EvaluationGrade evaluationGrade;
 
     public GetEvaluationResponseDTO(Evaluation evaluation) {
         student = evaluation.getStudent();
         evaluationDate = evaluation.getEvaluationDate();
-        evaluationType = evaluation.getEvaluationType();
+        evaluationGrade = evaluation.getEvaluationGrade();
     }
 }

@@ -1,9 +1,6 @@
 package com.kubsu.accounting.repository;
 
-import com.kubsu.accounting.model.Semester;
-import com.kubsu.accounting.model.Timetable;
-import com.kubsu.accounting.model.TypeOfWork;
-import com.kubsu.accounting.model.WorkDate;
+import com.kubsu.accounting.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -44,12 +41,30 @@ public interface WorkDateRepository extends JpaRepository<WorkDate, Long> {
             "   ON wd.timetable.id = t.id " +
             "WHERE wd.timetable = :timetable " +
             "  AND wd.workDate = :workDate " +
+            "  AND wd.typeOfWork = :typeOfWork " +
+            "  AND wd.evaluationGradeSystem = :evaluationGradeSystem")
+    Optional<Long> findByTimetableAndDateOfWorkAndTypeOfWorkAndEvaluationGradeSystem(Timetable timetable,
+                                                                                     OffsetDateTime workDate,
+                                                                                     TypeOfWork typeOfWork,
+                                                                                     EvaluationGradeSystem evaluationGradeSystem);
+
+    @Query("SELECT wd.id " +
+            " FROM WorkDate wd " +
+            " JOIN Timetable t " +
+            "   ON wd.timetable.id = t.id " +
+            "WHERE wd.timetable = :timetable " +
+            "  AND wd.workDate = :workDate " +
             "  AND wd.typeOfWork = :typeOfWork")
     Optional<Long> findByTimetableAndDateOfWorkAndTypeOfWork(Timetable timetable,
-                                                                 OffsetDateTime workDate,
-                                                                 TypeOfWork typeOfWork);
+                                                             OffsetDateTime workDate,
+                                                             TypeOfWork typeOfWork);
 
     Boolean existsByTimetableAndWorkDateAndTypeOfWork(Timetable timetable,
                                                       OffsetDateTime workDate,
                                                       TypeOfWork typeOfWork);
+
+    Boolean existsByTimetableAndWorkDateAndTypeOfWorkAndEvaluationGradeSystem(Timetable timetable,
+                                                                              OffsetDateTime workDate,
+                                                                              TypeOfWork typeOfWork,
+                                                                              EvaluationGradeSystem evaluationGradeSystem);
 }

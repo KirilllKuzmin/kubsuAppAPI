@@ -28,8 +28,8 @@
     <include file="db/table/timetable_groups.xml"/>
     <include file="db/table/absences.xml"/>
     <include file="db/table/timetable_changes.xml"/>
-    <include file="db/table/evaluations.xml"/>
     <include file="db/table/work_dates.xml"/>
+    <include file="db/table/evaluations.xml"/>
     <include file="db/data/absence_types.xml"/>
     <include file="db/data/academic_buildings.xml"/>
     <include file="db/data/course_types.xml"/>

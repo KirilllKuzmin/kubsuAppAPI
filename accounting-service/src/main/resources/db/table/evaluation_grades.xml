@@ -14,11 +14,11 @@
                              references="accounting_schema.evaluation_grade_systems(id)"/>
             </column>
             <column name="evaluation_type_id" type="int">
-                <constraints nullable="false"
+                <constraints nullable="true"
                              foreignKeyName="fk_evaluation_grades_evaluation_types"
                              references="accounting_schema.evaluation_types(id)"/>
             </column>
-            <column name="event_date" type="timestamp">
+            <column name="point_number" type="real">
                 <constraints nullable="false"/>
             </column>
         </createTable>

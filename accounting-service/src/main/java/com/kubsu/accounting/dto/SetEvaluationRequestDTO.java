@@ -15,7 +15,11 @@ public class SetEvaluationRequestDTO {
 
     private Long courseId;
 
+    private Long typeOfWorkId;
+
     private OffsetDateTime evaluationDate;
 
-    private Long evaluationTypeId;
+    private Long evaluationGradeSystemId;
+
+    private Double pointNumber;
 }

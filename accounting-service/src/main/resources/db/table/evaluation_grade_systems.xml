@@ -9,13 +9,13 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="min_grade" type="real">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="max_grade" type="real">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="passing_grade" type="real">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>

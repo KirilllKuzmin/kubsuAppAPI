@@ -8,10 +8,10 @@
             <column name="id" type="serial">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="timetable_id" type="int">
+            <column name="work_date_id" type="int">
                 <constraints nullable="false"
-                             foreignKeyName="fk_evaluations_timetables"
-                             references="accounting_schema.timetables(id)"/>
+                             foreignKeyName="fk_evaluations_work_dates"
+                             references="accounting_schema.work_dates(id)"/>
             </column>
             <column name="student_id" type="int">
                 <constraints nullable="false"

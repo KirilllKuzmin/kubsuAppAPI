@@ -19,8 +19,8 @@ public class Evaluation {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "timetable_id")
-    private Timetable timetable;
+    @JoinColumn(name = "work_date_id")
+    private WorkDate workDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id")
@@ -33,14 +33,14 @@ public class Evaluation {
     private OffsetDateTime eventDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "evaluation_type_id")
-    private EvaluationType evaluationType;
+    @JoinColumn(name = "evaluation_grade_id")
+    private EvaluationGrade evaluationGrade;
 
-    public Evaluation(Timetable timetable, Student student, OffsetDateTime evaluationDate, OffsetDateTime eventDate, EvaluationType evaluationType) {
-        this.timetable = timetable;
+    public Evaluation(WorkDate workDate, Student student, OffsetDateTime evaluationDate, OffsetDateTime eventDate, EvaluationGrade evaluationGrade) {
+        this.workDate = workDate;
         this.student = student;
         this.evaluationDate = evaluationDate;
         this.eventDate = eventDate;
-        this.evaluationType = evaluationType;
+        this.evaluationGrade = evaluationGrade;
     }
 }

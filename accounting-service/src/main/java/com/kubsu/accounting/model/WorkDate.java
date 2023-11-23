@@ -27,9 +27,14 @@ public class WorkDate {
     @JoinColumn(name = "type_of_work_id")
     private TypeOfWork typeOfWork;
 
-    public WorkDate(Timetable timetable, OffsetDateTime workDate, TypeOfWork typeOfWork) {
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "evaluation_grade_system_id")
+    private EvaluationGradeSystem evaluationGradeSystem;
+
+    public WorkDate(Timetable timetable, OffsetDateTime workDate, TypeOfWork typeOfWork, EvaluationGradeSystem evaluationGradeSystem) {
         this.timetable = timetable;
         this.workDate = workDate;
         this.typeOfWork = typeOfWork;
+        this.evaluationGradeSystem = evaluationGradeSystem;
     }
 }

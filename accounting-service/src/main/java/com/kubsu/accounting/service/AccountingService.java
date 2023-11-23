@@ -1,5 +1,6 @@
 package com.kubsu.accounting.service;
 
+import com.kubsu.accounting.dto.SetWorkTypesRequestDTO;
 import com.kubsu.accounting.exception.*;
 import com.kubsu.accounting.model.*;
 import com.kubsu.accounting.repository.*;
@@ -9,10 +10,8 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.OffsetDateTime;
 import java.time.temporal.WeekFields;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,6 +42,10 @@ public class AccountingService {
 
     private final EvaluationTypeRepository evaluationTypeRepository;
 
+    private final EvaluationGradeRepository evaluationGradeRepository;
+
+    private final EvaluationGradeSystemRepository evaluationGradeSystemRepository;
+
     public AccountingService(LecturerRepository lecturerRepository,
                              StudentRepository studentRepository,
                              TimetableRepository timetableRepository,
@@ -54,7 +57,9 @@ public class AccountingService {
                              WorkDateRepository workDateRepository,
                              TypeOfWorkRepository typeOfWorkRepository,
                              EvaluationRepository evaluationRepository,
-                             EvaluationTypeRepository evaluationTypeRepository) {
+                             EvaluationTypeRepository evaluationTypeRepository,
+                             EvaluationGradeRepository evaluationGradeRepository,
+                             EvaluationGradeSystemRepository evaluationGradeSystemRepository) {
         this.lecturerRepository = lecturerRepository;
         this.studentRepository = studentRepository;
         this.timetableRepository = timetableRepository;
@@ -67,6 +72,8 @@ public class AccountingService {
         this.typeOfWorkRepository = typeOfWorkRepository;
         this.evaluationRepository = evaluationRepository;
         this.evaluationTypeRepository = evaluationTypeRepository;
+        this.evaluationGradeRepository = evaluationGradeRepository;
+        this.evaluationGradeSystemRepository = evaluationGradeSystemRepository;
     }
 
     public List<Course> lecturerCourses(Long userId) {
@@ -151,7 +158,7 @@ public class AccountingService {
         Long dayOfWeek = (long) absenceDate.getDayOfWeek().getValue();
 
         //Ye;
-        Long timetableId = timetableRepository.findByCourseAndLecturerAndDayOfWeek(course, lecturer, dayOfWeek).orElseThrow(() ->
+        Long timetableId = timetableRepository.findByCourseAndLecturerAndDayOfWeekAndGroupId(course, lecturer, dayOfWeek, student.getGroupId()).orElseThrow(() ->
                 new TimetableNotFoundException("Unable to find timetable"));
 
         Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() ->
@@ -202,8 +209,6 @@ public class AccountingService {
     public List<WorkDate> getWorkDates(Long courseId, Long groupId, Long lecturerId) {
         OffsetDateTime currentDate = OffsetDateTime.now();
 
-        List<OffsetDateTime> courseDates = new ArrayList<>();
-
         Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
                 new LecturerNotFoundException("Unable to find lecturer with user_id" + lecturerId));
 
@@ -227,12 +232,8 @@ public class AccountingService {
         return typeOfWorkRepository.findAll();
     }
 
-    public List<WorkDate> setWorks(Long courseId, Long groupId, Long lecturerId, List<Long> workTypeIds, OffsetDateTime workDate) {
+    public List<WorkDate> setWorks(Long courseId, Long groupId, Long lecturerId, List<SetWorkTypesRequestDTO> workTypes, OffsetDateTime workDate) {
         OffsetDateTime currentDate = OffsetDateTime.now();
-
-        log.info(workTypeIds.toString());
-
-        List<OffsetDateTime> courseDates = new ArrayList<>();
 
         Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
                 new LecturerNotFoundException("Unable to find lecturer with user_id=" + lecturerId));
@@ -250,7 +251,7 @@ public class AccountingService {
         Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() ->
                 new TimetableNotFoundException("Unable to find timetable with id: " + timetableId));
 
-        if (workTypeIds.isEmpty()) {
+        if (workTypes.isEmpty()) {
             List<Long> workDateToDeleteIds = workDateRepository.findAllByTimetableAndDateOfWorkAndSemester(timetable, workDate, currentSemester)
                     .orElseThrow(() -> new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
 
@@ -259,23 +260,66 @@ public class AccountingService {
             return new ArrayList<WorkDate>();
         }
 
+        List<Long> workTypeIds = workTypes
+                .stream()
+                .map(SetWorkTypesRequestDTO::getTypeOfWorkId)
+                .collect(Collectors.toList());
+
         List<TypeOfWork> typeOfWorks = typeOfWorkRepository.findAllById(workTypeIds);
 
         List<TypeOfWork> allTypeOfWorks = typeOfWorkRepository.findAll();
 
-        for (TypeOfWork typeOfWork : allTypeOfWorks) {
-            if (!workDateRepository.existsByTimetableAndWorkDateAndTypeOfWork(timetable, workDate, typeOfWork)) {
-                if (typeOfWorks.contains(typeOfWork)) {
-                    workDateRepository.save(new WorkDate(timetable, workDate, typeOfWork));
+        List<SetWorkTypesRequestDTO> allTypeOfWorkDTOs = allTypeOfWorks
+                .stream()
+                .map(SetWorkTypesRequestDTO::new)
+                .toList();
+
+        //с помощью мапы создаем пересечение 2-х листов
+        Map<Long, SetWorkTypesRequestDTO> map1 = allTypeOfWorkDTOs.stream()
+                .collect(Collectors.toMap(SetWorkTypesRequestDTO::getTypeOfWorkId, Function.identity()));
+
+        workTypes.forEach(dto2 -> {
+            SetWorkTypesRequestDTO mergedDto = map1.get(dto2.getTypeOfWorkId());
+
+            if (mergedDto == null) {
+                mergedDto = new SetWorkTypesRequestDTO();
+                mergedDto.setTypeOfWorkId(dto2.getTypeOfWorkId());
+                allTypeOfWorkDTOs.add(mergedDto);
+            }
+
+            mergedDto.setMinGrade(dto2.getMinGrade());
+            mergedDto.setMaxGrade(dto2.getMaxGrade());
+            mergedDto.setPassingGrade(dto2.getPassingGrade());
+        });
+
+        for (SetWorkTypesRequestDTO workType : allTypeOfWorkDTOs) {
+            TypeOfWork typeOfWork = typeOfWorkRepository.findById(workType.getTypeOfWorkId()).orElseThrow(() ->
+                    new TypeOfWorkNotFoundException("Unable to find type of work"));
+
+            EvaluationGradeSystem evaluationGradeSystem = setEvaluationSystem(
+                    workType.getMinGrade(),
+                    workType.getMaxGrade(),
+                    workType.getPassingGrade());
+
+            if (workDateRepository.existsByTimetableAndWorkDateAndTypeOfWork(timetable, workDate, typeOfWork)) {
+                Long workDateCheckId = workDateRepository
+                        .findByTimetableAndDateOfWorkAndTypeOfWork(
+                                timetable, workDate, typeOfWork)
+                        .orElseThrow(() -> new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
+
+                WorkDate workDateCheck = workDateRepository.findById(workDateCheckId)
+                        .orElseThrow(() -> new WorkDateNotFoundException("unable to find work dates with id " + workDateCheckId));
+
+                if (evaluationGradeSystem == null) {
+                    workDateRepository.delete(workDateCheck);
+                } else if (workDateCheck.getEvaluationGradeSystem() != evaluationGradeSystem) {
+                    workDateRepository.delete(workDateCheck);
+
+                    workDateRepository.save(new WorkDate(timetable, workDate, typeOfWork, evaluationGradeSystem));
                 }
-            } else if (!typeOfWorks.contains(typeOfWork)) {
-                Long workDateToDeleteId = workDateRepository.findByTimetableAndDateOfWorkAndTypeOfWork(timetable, workDate, typeOfWork)
-                        .orElseThrow(() -> new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
 
-                WorkDate workDateToDelete = workDateRepository.findById(workDateToDeleteId)
-                        .orElseThrow(() -> new WorkDateNotFoundException("unable to find work dates with timetables " + timetable));
-
-                workDateRepository.delete(workDateToDelete);
+            } else if (evaluationGradeSystem != null) {
+                workDateRepository.save(new WorkDate(timetable, workDate, typeOfWork, evaluationGradeSystem));
             }
         }
 
@@ -285,7 +329,13 @@ public class AccountingService {
         return workDateRepository.findAllById(workDateIds);
     }
 
-    public String setEvaluationStudents(Long studentId, Long lecturerId, Long courseId, OffsetDateTime evaluationDate, Long evaluationTypeId) {
+    public String setEvaluationStudents(Long studentId,
+                                        Long lecturerId,
+                                        Long courseId,
+                                        Long typeOfWorkId,
+                                        OffsetDateTime evaluationDate,
+                                        Long evaluationGradeSystemId,
+                                        Double pointNumber) {
 
         Student student = studentRepository.findByUserId(studentId).orElseThrow(() ->
                 new StudentNotFoundException("Unable to find student with user_id = " + studentId));
@@ -298,24 +348,38 @@ public class AccountingService {
 
         Long dayOfWeek = (long) evaluationDate.getDayOfWeek().getValue();
 
-        //Ye;
-        Long timetableId = timetableRepository.findByCourseAndLecturerAndDayOfWeek(course, lecturer, dayOfWeek).orElseThrow(() ->
+        Long timetableId = timetableRepository.findByCourseAndLecturerAndDayOfWeekAndGroupId(course, lecturer, dayOfWeek, student.getGroupId()).orElseThrow(() ->
                 new TimetableNotFoundException("Unable to find timetable"));
 
         Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() ->
                 new TimetableNotFoundException("Unable to find timetable with id = " + timetableId));
 
-        if (evaluationTypeId == null) {
-            List<Long> evaluationIdsToDelete = evaluationRepository.findAllByStudentAndTimetableAndEvaluationDate(student, timetable, evaluationDate)
-                    .orElseThrow(() -> new EvaluationNotFoundException("Unable to find evaluation" + student + timetable + evaluationDate));
+        TypeOfWork typeOfWork = typeOfWorkRepository.findById(typeOfWorkId).orElseThrow(() ->
+                new TypeOfWorkNotFoundException("Unable to find type of work with id: " + typeOfWorkId));
+
+        EvaluationGradeSystem evaluationGradeSystem = evaluationGradeSystemRepository.findById(evaluationGradeSystemId)
+                .orElseThrow(() -> new EvaluationGradeSystemNotFoundException("Unable to find grade system with id: " + evaluationGradeSystemId));
+
+        Long workDateId = workDateRepository
+                .findByTimetableAndDateOfWorkAndTypeOfWorkAndEvaluationGradeSystem(timetable, evaluationDate, typeOfWork, evaluationGradeSystem)
+                .orElseThrow(() -> new WorkDateNotFoundException("unable to find work date with timetable: " + timetable));
+
+        WorkDate workDate = workDateRepository.findById(workDateId).orElseThrow(() ->
+                new WorkDateNotFoundException("unable to find work date with id: " + workDateId));
+
+        if (pointNumber == null) {
+            List<Long> evaluationIdsToDelete = evaluationRepository.findAllByStudentAndWorkDateAndEvaluationDate(student, workDate, evaluationDate)
+                    .orElseThrow(() -> new EvaluationNotFoundException("Unable to find evaluation" + student + workDate + evaluationDate));
             evaluationRepository.deleteAllById(evaluationIdsToDelete);
 
             return "Remove success";
         }
-        EvaluationType evaluationType = evaluationTypeRepository.findById(evaluationTypeId).orElseThrow(() ->
-                new EvaluationTypeNotFoundException("Unable to find evaluationType with id = " + evaluationTypeId));
 
-        evaluationRepository.save(new Evaluation(timetable, student, evaluationDate, OffsetDateTime.now(), evaluationType));
+        EvaluationGrade evaluationGrade = new EvaluationGrade(evaluationGradeSystem, null, pointNumber);
+
+        evaluationGradeRepository.save(evaluationGrade);
+
+        evaluationRepository.save(new Evaluation(workDate, student, evaluationDate, OffsetDateTime.now(), evaluationGrade));
 
         return "Success";
     }
@@ -338,12 +402,30 @@ public class AccountingService {
 
         List<Timetable> timetables = timetableRepository.findAllById(timetableIds);
 
+        List<Long> workDateIds = workDateRepository.findAllIdsByTimetables(timetables).orElseThrow(() ->
+                new WorkDateNotFoundException("Unable to find work dates with timetables: " + timetables));
+
+        List<WorkDate> workDates = workDateRepository.findAllById(workDateIds);
+
         List<Student> students = studentRepository.findAllByGroupId(groupId).orElseThrow(() ->
                 new StudentNotFoundException("Unable to find student"));
 
-        List<Long> evaluationIds = evaluationRepository.findAllByStudentAndTimetable(students, timetables).orElseThrow(() ->
+        List<Long> evaluationIds = evaluationRepository.findAllByStudentAndWorkDate(students, workDates).orElseThrow(() ->
                 new AbsenceNotFoundException("Unable to find absenceIds"));
 
         return evaluationRepository.findAllById(evaluationIds);
+    }
+
+    public EvaluationGradeSystem setEvaluationSystem(Double minGrade, Double maxGrade, Double passingGrade) {
+        if (minGrade == null || maxGrade == null || passingGrade == null) {
+            return null;
+        }
+
+        if (!evaluationGradeSystemRepository.existsByMinGradeAndMaxGradeAndPassingGrade(minGrade, maxGrade, passingGrade)) {
+            evaluationGradeSystemRepository.save(new EvaluationGradeSystem(minGrade, maxGrade, passingGrade));
+        }
+
+        return evaluationGradeSystemRepository.findByMinGradeAndMaxGradeAndPassingGrade(minGrade, maxGrade, passingGrade)
+                .orElseThrow(() -> new EvaluationGradeSystemNotFoundException("Unable to find evaluation grade system"));
     }
 }

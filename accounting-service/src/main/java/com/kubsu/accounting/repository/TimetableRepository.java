@@ -20,12 +20,16 @@ public interface TimetableRepository extends JpaRepository<Timetable, Long> {
 
     @Query("SELECT DISTINCT t.id " +
             " FROM Timetable t " +
+            " JOIN TimetableGroup tg " +
+            "   ON t.id = tg.timetable.id " +
             "WHERE t.course = :course " +
             "  AND t.lecturer = :lecturer " +
-            "  AND t.dayOfWeek = :dayOfWeek")
-    Optional<Long> findByCourseAndLecturerAndDayOfWeek(Course course,
-                                                       Lecturer lecturer,
-                                                       Long dayOfWeek);
+            "  AND t.dayOfWeek = :dayOfWeek " +
+            "  AND tg.groupId = :groupId")
+    Optional<Long> findByCourseAndLecturerAndDayOfWeekAndGroupId(Course course,
+                                                                 Lecturer lecturer,
+                                                                 Long dayOfWeek,
+                                                                 Long groupId);
 
     @Query("SELECT t.id " +
             " FROM Timetable t " +

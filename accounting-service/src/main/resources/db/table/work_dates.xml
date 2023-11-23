@@ -21,6 +21,11 @@
                              foreignKeyName="fk_work_dates_types_of_work"
                              references="accounting_schema.types_of_work(id)"/>
             </column>
+            <column name="evaluation_grade_system_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_work_dates_evaluation_grade_systems"
+                             references="accounting_schema.evaluation_grade_systems(id)"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>
