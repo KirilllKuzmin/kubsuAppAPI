@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +32,9 @@ public class WorkDate {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "evaluation_grade_system_id")
     private EvaluationGradeSystem evaluationGradeSystem;
+
+    @OneToMany(mappedBy = "workDate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Evaluation> evaluations;
 
     public WorkDate(Timetable timetable, OffsetDateTime workDate, TypeOfWork typeOfWork, EvaluationGradeSystem evaluationGradeSystem) {
         this.timetable = timetable;
