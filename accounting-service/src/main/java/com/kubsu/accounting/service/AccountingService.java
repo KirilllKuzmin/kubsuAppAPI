@@ -1,5 +1,6 @@
 package com.kubsu.accounting.service;
 
+import com.kubsu.accounting.dto.SetEvaluationRequestDTO;
 import com.kubsu.accounting.dto.SetWorkTypesRequestDTO;
 import com.kubsu.accounting.exception.*;
 import com.kubsu.accounting.model.*;
@@ -329,7 +330,7 @@ public class AccountingService {
         return workDateRepository.findAllById(workDateIds);
     }
 
-    public String setEvaluationStudents(Long studentId,
+    public String setEvaluationStudent(Long studentId,
                                         Long lecturerId,
                                         Long courseId,
                                         Long typeOfWorkId,
@@ -382,6 +383,79 @@ public class AccountingService {
         evaluationRepository.save(new Evaluation(workDate, student, evaluationDate, OffsetDateTime.now(), evaluationGrade));
 
         return "Success";
+    }
+
+    public String setEvaluationStudents(Long lecturerId,
+                                       List<SetEvaluationRequestDTO> setEvaluationRequestDTOs) {
+
+        Map<String, SetEvaluationRequestDTO> lastItems = new HashMap<>();
+
+        for (SetEvaluationRequestDTO setEvaluationRequestDTO : setEvaluationRequestDTOs) {
+            lastItems.put(setEvaluationRequestDTO.getStudentId() + "-"
+                    + setEvaluationRequestDTO.getTypeOfWorkId() + "-"
+                    + setEvaluationRequestDTO.getEvaluationGradeSystemId() + "-"
+                    + setEvaluationRequestDTO.getEvaluationDate(),
+                    setEvaluationRequestDTO);
+        }
+
+        List<SetEvaluationRequestDTO> filteredDTOs = new ArrayList<>(lastItems.values());
+
+        String response = "";
+
+        for (SetEvaluationRequestDTO filteredDTO : filteredDTOs) {
+            Student student = studentRepository.findByUserId(filteredDTO.getStudentId()).orElseThrow(() ->
+                    new StudentNotFoundException("Unable to find student with user_id = " + filteredDTO.getStudentId()));
+
+            Course course = courseRepository.findById(filteredDTO.getCourseId()).orElseThrow(() ->
+                    new CourseNotFoundException("Unable to find course_id" + filteredDTO.getCourseId()));
+
+            Lecturer lecturer = lecturerRepository.findLecturerByUserId(lecturerId).orElseThrow(() ->
+                    new LecturerNotFoundException("Unable to find lecturer with user_id = " + lecturerId));
+
+            Long dayOfWeek = (long) filteredDTO.getEvaluationDate().getDayOfWeek().getValue();
+
+            Long timetableId = timetableRepository.findByCourseAndLecturerAndDayOfWeekAndGroupId(course, lecturer, dayOfWeek, student.getGroupId()).orElseThrow(() ->
+                    new TimetableNotFoundException("Unable to find timetable"));
+
+            Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() ->
+                    new TimetableNotFoundException("Unable to find timetable with id = " + timetableId));
+
+            TypeOfWork typeOfWork = typeOfWorkRepository.findById(filteredDTO.getTypeOfWorkId()).orElseThrow(() ->
+                    new TypeOfWorkNotFoundException("Unable to find type of work with id: " + filteredDTO.getTypeOfWorkId()));
+
+            EvaluationGradeSystem evaluationGradeSystem = evaluationGradeSystemRepository.findById(filteredDTO.getEvaluationGradeSystemId())
+                    .orElseThrow(() -> new EvaluationGradeSystemNotFoundException("Unable to find grade system with id: " + filteredDTO.getEvaluationGradeSystemId()));
+
+            Long workDateId = workDateRepository
+                    .findByTimetableAndDateOfWorkAndTypeOfWorkAndEvaluationGradeSystem(timetable, filteredDTO.getEvaluationDate(), typeOfWork, evaluationGradeSystem)
+                    .orElseThrow(() -> new WorkDateNotFoundException("unable to find work date with timetable: " + timetable));
+
+            WorkDate workDate = workDateRepository.findById(workDateId).orElseThrow(() ->
+                    new WorkDateNotFoundException("unable to find work date with id: " + workDateId));
+
+            if (filteredDTO.getPointNumber() == null) {
+                List<Long> evaluationIdsToDelete = evaluationRepository.findAllByStudentAndWorkDateAndEvaluationDate(student, workDate, filteredDTO.getEvaluationDate())
+                        .orElseThrow(() -> new EvaluationNotFoundException("Unable to find evaluation" + student + workDate + filteredDTO.getEvaluationDate()));
+                evaluationRepository.deleteAllById(evaluationIdsToDelete);
+
+                response += filteredDTO.toString() + " Remove success; ";
+            } else {
+                EvaluationGrade evaluationGrade = new EvaluationGrade(evaluationGradeSystem, null, filteredDTO.getPointNumber());
+
+                if (evaluationRepository.existsByStudentAndWorkDate(student, workDate)) {
+
+                    evaluationRepository.deleteByStudentAndAndWorkDateAndAndEvaluationDate(student, workDate, filteredDTO.getEvaluationDate());
+                }
+
+                evaluationGradeRepository.save(evaluationGrade);
+
+                evaluationRepository.save(new Evaluation(workDate, student, filteredDTO.getEvaluationDate(), OffsetDateTime.now(), evaluationGrade));
+
+                response += filteredDTO.toString() + " success; ";
+            }
+        }
+
+        return response;
     }
 
     public List<Evaluation> getEvaluationStudents(Long groupId, Long lecturerId, Long courseId) {

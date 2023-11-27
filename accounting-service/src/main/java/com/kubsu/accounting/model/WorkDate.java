@@ -9,26 +9,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
 @NoArgsConstructor
 @Table(name = "work_dates", schema = "accounting_schema")
 public class WorkDate {
 
     @Id
+    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Getter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "timetable_id")
     private Timetable timetable;
 
+    @Getter
     @Column(name = "work_date")
     private OffsetDateTime workDate;
 
+    @Getter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "type_of_work_id")
     private TypeOfWork typeOfWork;
 
+    @Getter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "evaluation_grade_system_id")
     private EvaluationGradeSystem evaluationGradeSystem;

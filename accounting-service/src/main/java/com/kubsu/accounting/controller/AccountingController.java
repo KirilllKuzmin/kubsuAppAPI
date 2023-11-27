@@ -172,20 +172,31 @@ public class AccountingController {
                 setEvaluationSystemRequestDTO.getPassingGrade()));
     }
 
+//    @PostMapping("/lecturers/evaluations")
+//    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
+//    public ResponseEntity<?> setEvaluationStudent(@RequestBody SetEvaluationRequestDTO setEvaluationRequestDTO) {
+//        SecurityContext context = SecurityContextHolder.getContext();
+//        Authentication authentication = context.getAuthentication();
+//        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+//
+//        return ResponseEntity.ok(accountingService.setEvaluationStudent(setEvaluationRequestDTO.getStudentId(),
+//                userDetails.getId(),
+//                setEvaluationRequestDTO.getCourseId(),
+//                setEvaluationRequestDTO.getTypeOfWorkId(),
+//                setEvaluationRequestDTO.getEvaluationDate(),
+//                setEvaluationRequestDTO.getEvaluationGradeSystemId(),
+//                setEvaluationRequestDTO.getPointNumber()));
+//    }
+
     @PostMapping("/lecturers/evaluations")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
-    public ResponseEntity<?> setEvaluationStudent(@RequestBody SetEvaluationRequestDTO setEvaluationRequestDTO) {
+    public ResponseEntity<?> setEvaluationStudents(@RequestBody List<SetEvaluationRequestDTO> setEvaluationRequestDTOs) {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        return ResponseEntity.ok(accountingService.setEvaluationStudents(setEvaluationRequestDTO.getStudentId(),
-                userDetails.getId(),
-                setEvaluationRequestDTO.getCourseId(),
-                setEvaluationRequestDTO.getTypeOfWorkId(),
-                setEvaluationRequestDTO.getEvaluationDate(),
-                setEvaluationRequestDTO.getEvaluationGradeSystemId(),
-                setEvaluationRequestDTO.getPointNumber()));
+        return ResponseEntity.ok(accountingService.setEvaluationStudents(userDetails.getId(),
+                setEvaluationRequestDTOs));
     }
 
     @GetMapping("/lecturers/evaluations/courses/{courseId}/groups/{groupId}")

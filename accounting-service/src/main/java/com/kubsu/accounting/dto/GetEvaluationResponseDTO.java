@@ -18,9 +18,12 @@ public class GetEvaluationResponseDTO {
 
     private EvaluationGrade evaluationGrade;
 
+    private WorkDate workDate;
+
     public GetEvaluationResponseDTO(Evaluation evaluation) {
         student = evaluation.getStudent();
         evaluationDate = evaluation.getEvaluationDate();
         evaluationGrade = evaluation.getEvaluationGrade();
+        workDate = evaluation.getWorkDate();
     }
 }

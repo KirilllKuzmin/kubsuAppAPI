@@ -1,11 +1,10 @@
 package com.kubsu.accounting.repository;
 
-import com.kubsu.accounting.model.Evaluation;
-import com.kubsu.accounting.model.Student;
-import com.kubsu.accounting.model.Timetable;
-import com.kubsu.accounting.model.WorkDate;
+import com.kubsu.accounting.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -24,4 +23,17 @@ public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
     Optional<List<Long>> findAllByStudentAndWorkDateAndEvaluationDate(Student student,
                                                                       WorkDate workDate,
                                                                       OffsetDateTime evaluationDate);
+
+    Boolean existsByStudentAndWorkDate(Student student,
+                                       WorkDate workDate);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Evaluation e " +
+            "WHERE e.student = :student " +
+            "  AND e.workDate = :workDate " +
+            "  AND e.evaluationDate = :evaluationDate")
+    void deleteByStudentAndAndWorkDateAndAndEvaluationDate(Student student,
+                                                           WorkDate workDate,
+                                                           OffsetDateTime evaluationDate);
 }
