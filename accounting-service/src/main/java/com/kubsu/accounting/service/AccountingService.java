@@ -158,7 +158,6 @@ public class AccountingService {
 
         Long dayOfWeek = (long) absenceDate.getDayOfWeek().getValue();
 
-        //Ye;
         Long timetableId = timetableRepository.findByCourseAndLecturerAndDayOfWeekAndGroupId(course, lecturer, dayOfWeek, student.getGroupId()).orElseThrow(() ->
                 new TimetableNotFoundException("Unable to find timetable"));
 
