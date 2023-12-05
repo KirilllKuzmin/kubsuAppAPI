@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+    <changeSet id="accounting_create-work-dates-table" author="Kirill.Kuzmin">
+        <createTable tableName="work_dates" schemaName="accounting_schema">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="timetable_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_work_dates_timetables"
+                             references="accounting_schema.timetables(id)"/>
+            </column>
+            <column name="work_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type_of_work_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_work_dates_types_of_work"
+                             references="accounting_schema.types_of_work(id)"/>
+            </column>
+            <column name="evaluation_grade_system_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_work_dates_evaluation_grade_systems"
+                             references="accounting_schema.evaluation_grade_systems(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

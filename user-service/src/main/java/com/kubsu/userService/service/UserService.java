@@ -1,5 +1,6 @@
 package com.kubsu.userService.service;
 
+import com.kubsu.userService.controller.dto.GroupResponseDTO;
 import com.kubsu.userService.exception.DegreeOfStudyNotFoundException;
 import com.kubsu.userService.exception.GroupNotFoundException;
 import com.kubsu.userService.exception.SpecialtyNotFoundException;
@@ -28,6 +29,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -82,11 +84,23 @@ public class UserService {
     }
 
     public List<Group> getAllGroups(List<Long> groupIds) {
-        return groupRepository.findAllById(groupIds);
+        if (groupIds == null)
+            return groupRepository.findAll()
+                    .stream()
+                    .sorted(Comparator.comparing(Group::getName))
+                    .collect(Collectors.toList());
+
+        return groupRepository.findAllById(groupIds)
+                .stream()
+                .sorted(Comparator.comparing(Group::getName))
+                .collect(Collectors.toList());
     }
 
     public List<User> getAllStudents(List<Long> userIds) {
-        return userRepository.findAllById(userIds);
+        return userRepository.findAllById(userIds)
+                .stream()
+                .sorted(Comparator.comparing(User::getFullName))
+                .collect(Collectors.toList());
     }
 
     @Async

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+    <changeSet id="accounting_create-evaluations-table" author="Kirill.Kuzmin">
+        <createTable tableName="evaluations" schemaName="accounting_schema">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="work_date_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_evaluations_work_dates"
+                             references="accounting_schema.work_dates(id)"/>
+            </column>
+            <column name="student_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_evaluations_students"
+                             references="accounting_schema.students(id)"/>
+            </column>
+            <column name="evaluation_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="evaluation_grade_id" type="int">
+                <constraints nullable="false"
+                             foreignKeyName="fk_evaluations_evaluation_grades"
+                             references="accounting_schema.evaluation_grades(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

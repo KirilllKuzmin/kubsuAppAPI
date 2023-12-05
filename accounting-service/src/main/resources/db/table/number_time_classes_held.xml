@@ -8,10 +8,10 @@
             <column name="id" type="serial">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="start_date" type="time">
+            <column name="start_time" type="time">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="end_date" type="time">
+            <column name="end_time" type="time">
                 <constraints nullable="false" unique="true"/>
             </column>
         </createTable>

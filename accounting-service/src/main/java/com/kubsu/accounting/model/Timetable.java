@@ -1,12 +1,16 @@
 package com.kubsu.accounting.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Table(name = "timetables", schema = "accounting_schema")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Timetable {
 
@@ -40,4 +44,7 @@ public class Timetable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "semester_id")
     private Semester semester;
+
+    @OneToMany(mappedBy = "timetable")
+    private List<TimetableGroup> timetableGroup;
 }

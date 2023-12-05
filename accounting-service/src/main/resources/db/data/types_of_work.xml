@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+    <changeSet id="accounting_1_insert-types-of-work-table" author="Kirill.Kuzmin">
+        <insert tableName="types_of_work" schemaName="accounting_schema">
+            <column name="name" value="Контрольная работа"/>
+        </insert>
+        <insert tableName="types_of_work" schemaName="accounting_schema">
+            <column name="name" value="Самостоятельная работа"/>
+        </insert>
+        <insert tableName="types_of_work" schemaName="accounting_schema">
+            <column name="name" value="Домашняя работа"/>
+        </insert>
+        <insert tableName="types_of_work" schemaName="accounting_schema">
+            <column name="name" value="Работа на паре"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

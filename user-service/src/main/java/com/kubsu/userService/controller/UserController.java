@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @GetMapping("all")
-    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('ADMIN')")
     public CompletableFuture<List<UserResponseDTO>> allProfiles() {
         CompletableFuture<List<User>> usersFuture = userService.getAllUsers();
 
@@ -56,7 +56,7 @@ public class UserController {
     }
 
     @GetMapping("groups")
-    public List<GroupResponseDTO> allGroups(@RequestParam List<Long> groupId) {
+    public List<GroupResponseDTO> allGroups(@RequestParam(required = false) List<Long> groupId) {
         return userService.getAllGroups(groupId)
                 .stream()
                 .map(GroupResponseDTO::new)

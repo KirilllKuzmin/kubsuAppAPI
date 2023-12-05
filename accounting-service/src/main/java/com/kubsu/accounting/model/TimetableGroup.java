@@ -1,12 +1,13 @@
 package com.kubsu.accounting.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "timetable_groups", schema = "accounting_schema")
-@Data
+@Setter
 @NoArgsConstructor
 public class TimetableGroup {
 
@@ -18,6 +19,7 @@ public class TimetableGroup {
     @JoinColumn(name = "timetable_id")
     private Timetable timetable;
 
+    @Getter
     @Column(name = "group_id")
     private Long groupId;
 }

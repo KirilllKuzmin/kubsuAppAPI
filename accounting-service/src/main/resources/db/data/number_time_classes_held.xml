@@ -5,40 +5,40 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
     <changeSet id="accounting_1_insert-number-time-classes-held-table" author="Kirill.Kuzmin">
         <insert tableName="number_time_classes_held" schemaName="accounting_schema">
-            <column name="start_date" value="08:00"/>
-            <column name="end_date" value="09:20"/>
+            <column name="start_time" value="08:00"/>
+            <column name="end_time" value="09:20"/>
         </insert>
         <insert tableName="number_time_classes_held" schemaName="accounting_schema">
-            <column name="start_date" value="09:30"/>
-            <column name="end_date" value="10:50"/>
+            <column name="start_time" value="09:30"/>
+            <column name="end_time" value="10:50"/>
         </insert>
         <insert tableName="number_time_classes_held" schemaName="accounting_schema">
-            <column name="start_date" value="11:10"/>
-            <column name="end_date" value="12:30"/>
+            <column name="start_time" value="11:10"/>
+            <column name="end_time" value="12:30"/>
         </insert>
         <insert tableName="number_time_classes_held" schemaName="accounting_schema">
-            <column name="start_date" value="12:40"/>
-            <column name="end_date" value="14:00"/>
+            <column name="start_time" value="12:40"/>
+            <column name="end_time" value="14:00"/>
         </insert>
         <insert tableName="number_time_classes_held" schemaName="accounting_schema">
-            <column name="start_date" value="14:10"/>
-            <column name="end_date" value="15:30"/>
+            <column name="start_time" value="14:10"/>
+            <column name="end_time" value="15:30"/>
         </insert>
         <insert tableName="number_time_classes_held" schemaName="accounting_schema">
-            <column name="start_date" value="15:40"/>
-            <column name="end_date" value="17:00"/>
+            <column name="start_time" value="15:40"/>
+            <column name="end_time" value="17:00"/>
         </insert>
         <insert tableName="number_time_classes_held" schemaName="accounting_schema">
-            <column name="start_date" value="17:10"/>
-            <column name="end_date" value="18:30"/>
+            <column name="start_time" value="17:10"/>
+            <column name="end_time" value="18:30"/>
         </insert>
         <insert tableName="number_time_classes_held" schemaName="accounting_schema">
-            <column name="start_date" value="18:40"/>
-            <column name="end_date" value="20:00"/>
+            <column name="start_time" value="18:40"/>
+            <column name="end_time" value="20:00"/>
         </insert>
         <insert tableName="number_time_classes_held" schemaName="accounting_schema">
-            <column name="start_date" value="20:10"/>
-            <column name="end_date" value="21:30"/>
+            <column name="start_time" value="20:10"/>
+            <column name="end_time" value="21:30"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

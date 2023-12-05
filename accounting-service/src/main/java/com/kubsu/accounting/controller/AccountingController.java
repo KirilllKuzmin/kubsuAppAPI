@@ -1,9 +1,7 @@
 package com.kubsu.accounting.controller;
 
-import com.kubsu.accounting.dto.GroupResponseDTO;
-import com.kubsu.accounting.dto.StudentResponseDTO;
-import com.kubsu.accounting.model.Course;
-import com.kubsu.accounting.model.Student;
+import com.kubsu.accounting.dto.*;
+import com.kubsu.accounting.model.*;
 import com.kubsu.accounting.rest.UserServiceClient;
 import com.kubsu.accounting.service.AccountingService;
 import com.kubsu.accounting.service.UserDetailsImpl;
@@ -17,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+
 
 @RestController
 @RequestMapping("/accounting")
@@ -64,10 +62,14 @@ public class AccountingController {
         return accountingService.lecturerCourses(userDetails.getId());
     }
 
-    @GetMapping("/courses/{courseId}/groups")
+    @GetMapping("/lecturers/courses/{courseId}/groups")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
     public List<GroupResponseDTO> courseGroups(@PathVariable Long courseId) {
-        return userServiceClient.getGroups(new ArrayList<>(accountingService.courseGroups(courseId)));
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return userServiceClient.getGroups(new ArrayList<>(accountingService.courseGroups(courseId, userDetails.getId())));
     }
 
     @GetMapping("/groups/{groupId}/students")
@@ -80,18 +82,119 @@ public class AccountingController {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/courses/{courseId}/dates")
+    @GetMapping("/lecturers/courses/{courseId}/groups/{groupId}/dates")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('STUDENT') or hasRole('ADMIN')")
-    public List<OffsetDateTime> courseDates(@PathVariable Long courseId) {
-        return accountingService.getDatesOfCourse(courseId);
+    public List<OffsetDateTime> courseDates(@PathVariable Long courseId, @PathVariable Long groupId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return accountingService.getDatesOfCourse(courseId, groupId, userDetails.getId());
     }
 
-    @PostMapping("/lecturers/setAbsences")
+    @PostMapping("/lecturers/absences")
     @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
-    public ResponseEntity<?> setAbsenceStudent(@RequestBody Long userId,
-                                               Long timetableId,
-                                               OffsetDateTime absenceDate,
-                                               Long absenceTypeId) {
-        return ResponseEntity.ok(accountingService.setAbsenceStudents(userId, timetableId, absenceDate, absenceTypeId));
+    public ResponseEntity<?> setAbsenceStudent(@RequestBody SetAbsenceRequestDTO setAbsenceRequestDTO) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return ResponseEntity.ok(accountingService.setAbsenceStudents(setAbsenceRequestDTO.getStudentId(),
+                userDetails.getId(),
+                setAbsenceRequestDTO.getCourseId(),
+                setAbsenceRequestDTO.getAbsenceDate(),
+                setAbsenceRequestDTO.getAbsenceTypeId()));
+    }
+
+    @GetMapping("/lecturers/absences/courses/{courseId}/groups/{groupId}")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public List<GetAbsenceResponseDTO> getAbsences(@PathVariable Long courseId, @PathVariable Long groupId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        List<Absence> absences = accountingService.getAbsenceStudents(groupId, userDetails.getId(), courseId);
+
+        return absences
+                .stream()
+                .map(GetAbsenceResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/lecturers/courses/{courseId}/groups/{groupId}/works")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('STUDENT') or hasRole('ADMIN')")
+    public List<WorkDateResponseDTO> workDates(@PathVariable Long courseId, @PathVariable Long groupId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return accountingService.getWorkDates(courseId, groupId, userDetails.getId())
+                .stream()
+                .map(WorkDateResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/workTypes")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('STUDENT') or hasRole('ADMIN')")
+    public List<TypeOfWorkResponseDTO> workTypes() {
+
+        return accountingService.getWorkTypes()
+                .stream()
+                .map(TypeOfWorkResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/lecturers/courses/{courseId}/groups/{groupId}/dates/{workDate}/works")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
+    public List<WorkDateResponseDTO> setWorkTypes(@PathVariable Long courseId,
+                                            @PathVariable Long groupId,
+                                            @PathVariable OffsetDateTime workDate,
+                                            @RequestBody List<SetWorkTypesRequestDTO> workTypes) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        List<WorkDate> workDateResponse = accountingService.setWorks(courseId, groupId, userDetails.getId(), workTypes, workDate);
+
+        return workDateResponse
+                .stream()
+                .map(WorkDateResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/lecturers/evaluations/systems")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
+    public SetEvaluationSystemResponseDTO setEvaluationSystem(@RequestBody SetEvaluationSystemRequestDTO setEvaluationSystemRequestDTO) {
+
+        return new SetEvaluationSystemResponseDTO(accountingService.setEvaluationSystem(
+                setEvaluationSystemRequestDTO.getMinGrade(),
+                setEvaluationSystemRequestDTO.getMaxGrade(),
+                setEvaluationSystemRequestDTO.getPassingGrade()));
+    }
+
+    @PostMapping("/lecturers/evaluations")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR')")
+    public ResponseEntity<?> setEvaluationStudents(@RequestBody List<SetEvaluationRequestDTO> setEvaluationRequestDTOs) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return ResponseEntity.ok(accountingService.setEvaluationStudents(userDetails.getId(),
+                setEvaluationRequestDTOs));
+    }
+
+    @GetMapping("/lecturers/evaluations/courses/{courseId}/groups/{groupId}")
+    @PreAuthorize("hasRole('LECTURER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public List<GetEvaluationResponseDTO> getEvaluations(@PathVariable Long courseId, @PathVariable Long groupId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        List<Evaluation> evaluations = accountingService.getEvaluationStudents(groupId, userDetails.getId(), courseId);
+
+        return evaluations
+                .stream()
+                .map(GetEvaluationResponseDTO::new)
+                .collect(Collectors.toList());
     }
 }
