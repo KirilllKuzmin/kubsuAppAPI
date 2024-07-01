@@ -5,4 +5,5 @@ include 'gateway'
 include 'user-service'
 include 'accounting-service'
 include 'report-service'
+include 'notification-service'
 

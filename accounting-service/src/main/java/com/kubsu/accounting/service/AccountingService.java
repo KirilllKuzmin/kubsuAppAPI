@@ -169,14 +169,14 @@ public class AccountingService {
                     .orElseThrow(() -> new AbsenceNotFoundException("Unable to find absence" + student + timetable + absenceDate));
             absenceRepository.deleteAllById(absenceIdsToDelete);
 
-            return "Remove success";
+            return "{\"response\": \"Remove success\"}";
         }
         AbsenceType absenceType = absenceTypeRepository.findById(absenceTypeId).orElseThrow(() ->
                 new AbsenceTypeNotFoundException("Unable to find absenceType with id = " + absenceTypeId));
 
         absenceRepository.save(new Absence(timetable, student, absenceDate, OffsetDateTime.now(), absenceType));
 
-        return "Success";
+        return "{\"response\": \"Success\"}";
     }
 
     public List<Absence> getAbsenceStudents(Long groupId, Long lecturerId, Long courseId) {

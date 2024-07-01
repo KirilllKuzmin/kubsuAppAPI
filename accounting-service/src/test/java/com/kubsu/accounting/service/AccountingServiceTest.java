@@ -19,28 +19,20 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class AccountingServiceTest {
-
     @Mock
     private LecturerRepository lecturerRepository;
-
     @Mock
     private StudentRepository studentRepository;
-
     @Mock
     private TimetableRepository timetableRepository;
-
     @Mock
     private CourseRepository courseRepository;
-
     @Mock
     private AbsenceRepository absenceRepository;
-
     @Mock
     private AbsenceTypeRepository absenceTypeRepository;
-
     @InjectMocks
     private AccountingService accountingService;
-
     @Test
     public void testSetAbsenceStudents() {
         Long studentId = 1L;
